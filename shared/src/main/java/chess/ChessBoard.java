@@ -16,7 +16,7 @@ public class ChessBoard {
 
     public ChessBoard() {
         this.board = new HashMap<>();
-        resetBoard();
+        // resetBoard();
     }
 
     /**
