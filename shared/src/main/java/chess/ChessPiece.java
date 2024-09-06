@@ -190,7 +190,7 @@ public class ChessPiece {
             ChessPosition newPosition = new ChessPosition(newRow, newColumn);
             ChessPiece piece = board.getPiece(newPosition);
             if (piece == null) {
-                moves.add(new ChessMove(myPosition, newPosition));
+                moves.addAll(pawnPromotionCheck(new ChessMove(myPosition, newPosition)));
                 if (myPosition.getRow() == startRow) {
                     newRow = myPosition.getRow() + 2 * direction;
                     newPosition = new ChessPosition(newRow, newColumn);
@@ -205,22 +205,40 @@ public class ChessPiece {
         }
 
         int[][] attackDirections = {
-                {-1,  direction},
-                { 1,  direction}
+                { direction, -1},
+                { direction,  1}
         };
 
         for (int[] attackDirection : attackDirections) {
-            newRow = myPosition.getRow() + attackDirection[0] * direction;
-            newColumn = myPosition.getColumn() + attackDirection[1] * direction;
+            newRow = myPosition.getRow() + attackDirection[0];
+            newColumn = myPosition.getColumn() + attackDirection[1];
             try {
                 ChessPosition newPosition = new ChessPosition(newRow, newColumn);
                 ChessPiece piece = board.getPiece(newPosition);
                 if (piece != null && piece.getTeamColor() != color) {
-                    moves.add(new ChessMove(myPosition, newPosition));
+                    moves.addAll(pawnPromotionCheck(new ChessMove(myPosition, newPosition)));
                 }
             } catch (IllegalArgumentException e) {
                 // Ignore invalid positions
             }
+        }
+
+
+        return moves;
+    }
+
+    private Collection<ChessMove> pawnPromotionCheck(ChessMove move) {
+        Collection<ChessMove> moves = new HashSet<>();
+        int promotionZone = color == ChessGame.TeamColor.WHITE ? 8 : 1;
+        if (move.getEndPosition().getRow() == promotionZone) {
+            ChessPosition startPosition = move.getStartPosition();
+            ChessPosition endPosition = move.getEndPosition();
+            moves.add(new ChessMove(startPosition, endPosition, PieceType.QUEEN));
+            moves.add(new ChessMove(startPosition, endPosition, PieceType.ROOK));
+            moves.add(new ChessMove(startPosition, endPosition, PieceType.BISHOP));
+            moves.add(new ChessMove(startPosition, endPosition, PieceType.KNIGHT));
+        } else {
+            moves.add(move);
         }
 
         return moves;
