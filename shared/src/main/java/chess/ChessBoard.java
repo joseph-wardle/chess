@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    private Map<ChessPosition, ChessPiece> board;
+    private final Map<ChessPosition, ChessPiece> board;
 
     public ChessBoard() {
         this.board = new HashMap<>();

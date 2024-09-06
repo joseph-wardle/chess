@@ -5,10 +5,10 @@ import java.util.HashSet;
 import java.util.Objects;
 
 /**
- * Represents a single chess piece
+ * Represents a single chess piece.
  * <p>
  * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
+ * the signature of the existing methods.
  */
 public class ChessPiece {
     private final ChessGame.TeamColor color;
@@ -20,7 +20,7 @@ public class ChessPiece {
     }
 
     /**
-     * The various different chess piece options
+     * The various different chess piece types.
      */
     public enum PieceType {
         KING,
@@ -39,18 +39,17 @@ public class ChessPiece {
     }
 
     /**
-     * @return which type of chess piece this piece is
+     * @return The type of chess piece (e.g., KING, QUEEN)
      */
     public PieceType getPieceType() {
         return type;
     }
 
     /**
-     * Calculates all the positions a chess piece can move to
-     * Does not take into account moves that are illegal due to leaving the king in
-     * danger
+     * Calculates all the valid moves a chess piece can make, excluding checks for
+     * illegal moves that would leave the king in danger.
      *
-     * @return Collection of valid moves
+     * @return A collection of valid moves.
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         return switch (type) {
@@ -63,17 +62,42 @@ public class ChessPiece {
         };
     }
 
-    private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new HashSet<>();
-        int[][] directions = {
-                {-1, -1}, {-1,  0}, {-1,  1},
-                { 0, -1},           { 0,  1},
-                { 1, -1}, { 1,  0}, { 1,  1}
-        };
-
+    /**
+     * Generates moves in a given direction until a piece is encountered or the edge of the board is reached.
+     *
+     * @param directions The directions to generate moves. Numbers should either be `1` or `0`
+     */
+    private void generateDirectionalMoves(ChessBoard board, ChessPosition myPosition, int[][] directions, Collection<ChessMove> moves) {
         for (int[] direction : directions) {
-            int newRow = myPosition.getRow() + direction[0];
-            int newColumn = myPosition.getColumn() + direction[1];
+            for (int i = 1; i < 8; i++) {
+                int newRow = myPosition.getRow() + direction[0] * i;
+                int newColumn = myPosition.getColumn() + direction[1] * i;
+                try {
+                    ChessPosition newPosition = new ChessPosition(newRow, newColumn);
+                    ChessPiece piece = board.getPiece(newPosition);
+                    if (piece == null || piece.getTeamColor() != color) {
+                        moves.add(new ChessMove(myPosition, newPosition));
+                    }
+                    if (piece != null) {
+                        break;
+                    }
+                } catch (IllegalArgumentException e) {
+                    // Ignore invalid positions
+                }
+            }
+        }
+    }
+
+    /**
+     * Generates moves at fixed steps.
+     *
+     * @param steps The steps to generate moves.
+     */
+
+    private void generateStepMoves(ChessBoard board, ChessPosition myPosition, int[][] steps, Collection<ChessMove> moves) {
+        for (int[] step : steps) {
+            int newRow = myPosition.getRow() + step[0];
+            int newColumn = myPosition.getColumn() + step[1];
             try {
                 ChessPosition newPosition = new ChessPosition(newRow, newColumn);
                 ChessPiece piece = board.getPiece(newPosition);
@@ -84,6 +108,17 @@ public class ChessPiece {
                 // Ignore invalid positions
             }
         }
+    }
+
+    private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> moves = new HashSet<>();
+        int[][] directions = {
+                {-1, -1}, {-1,  0}, {-1,  1},
+                { 0, -1},           { 0,  1},
+                { 1, -1}, { 1,  0}, { 1,  1}
+        };
+
+        generateStepMoves(board, myPosition, directions, moves);
 
         return moves;
     }
@@ -102,24 +137,7 @@ public class ChessPiece {
                 { 1, -1}, { 1,  1}
         };
 
-        for (int[] direction : directions) {
-            for (int i = 1; i < 8; i++) {
-                int newRow = myPosition.getRow() + direction[0] * i;
-                int newColumn = myPosition.getColumn() + direction[1] * i;
-                try {
-                    ChessPosition newPosition = new ChessPosition(newRow, newColumn);
-                    ChessPiece piece = board.getPiece(newPosition);
-                    if (piece == null || piece.getTeamColor() != color) {
-                        moves.add(new ChessMove(myPosition, newPosition));
-                    }
-                    if (piece != null) {
-                        break;
-                    }
-                } catch (IllegalArgumentException e) {
-                    // Ignore invalid positions
-                }
-            }
-        }
+        generateDirectionalMoves(board, myPosition, directions, moves);
 
         return moves;
     }
@@ -133,19 +151,7 @@ public class ChessPiece {
                 { 2, -1}, { 2,  1}
         };
 
-        for (int[] direction : directions) {
-            int newRow = myPosition.getRow() + direction[0];
-            int newColumn = myPosition.getColumn() + direction[1];
-            try {
-                ChessPosition newPosition = new ChessPosition(newRow, newColumn);
-                ChessPiece piece = board.getPiece(newPosition);
-                if (piece == null || piece.getTeamColor() != color) {
-                    moves.add(new ChessMove(myPosition, newPosition));
-                }
-            } catch (IllegalArgumentException e) {
-                // Ignore invalid positions
-            }
-        }
+        generateStepMoves(board, myPosition, directions, moves);
 
         return moves;
     }
@@ -158,24 +164,7 @@ public class ChessPiece {
                      { 1,  0}
         };
 
-        for (int[] direction : directions) {
-            for (int i = 1; i < 8; i++) {
-                int newRow = myPosition.getRow() + direction[0] * i;
-                int newColumn = myPosition.getColumn() + direction[1] * i;
-                try {
-                    ChessPosition newPosition = new ChessPosition(newRow, newColumn);
-                    ChessPiece piece = board.getPiece(newPosition);
-                    if (piece == null || piece.getTeamColor() != color) {
-                        moves.add(new ChessMove(myPosition, newPosition));
-                    }
-                    if (piece != null) {
-                        break;
-                    }
-                } catch (IllegalArgumentException e) {
-                    // Ignore invalid positions
-                }
-            }
-        }
+        generateDirectionalMoves(board, myPosition, directions, moves);
 
         return moves;
     }
@@ -184,6 +173,35 @@ public class ChessPiece {
         Collection<ChessMove> moves = new HashSet<>();
         int direction = color == ChessGame.TeamColor.WHITE ? 1 : -1;
         int startRow = color == ChessGame.TeamColor.WHITE ? 2 : 7;
+
+        addPawnForwardMoves(board, myPosition, direction, startRow, moves);
+        AddPawnAttackMoves(board, myPosition, direction, moves);
+
+        return moves;
+    }
+
+    private void AddPawnAttackMoves(ChessBoard board, ChessPosition myPosition, int direction, Collection<ChessMove> moves) {
+        int[][] attackDirections = {
+                {direction, -1},
+                {direction,  1}
+        };
+
+        for (int[] attackDirection : attackDirections) {
+            int newRow = myPosition.getRow() + attackDirection[0];
+            int newColumn = myPosition.getColumn() + attackDirection[1];
+            try {
+                ChessPosition newPosition = new ChessPosition(newRow, newColumn);
+                ChessPiece piece = board.getPiece(newPosition);
+                if (piece != null && piece.getTeamColor() != color) {
+                    moves.addAll(pawnPromotionCheck(new ChessMove(myPosition, newPosition)));
+                }
+            } catch (IllegalArgumentException e) {
+                // Ignore invalid positions
+            }
+        }
+    }
+
+    private void addPawnForwardMoves(ChessBoard board, ChessPosition myPosition, int direction, int startRow, Collection<ChessMove> moves) {
         int newRow = myPosition.getRow() + direction;
         int newColumn = myPosition.getColumn();
         try {
@@ -203,30 +221,15 @@ public class ChessPiece {
         } catch (IllegalArgumentException e) {
             // Ignore invalid positions
         }
-
-        int[][] attackDirections = {
-                { direction, -1},
-                { direction,  1}
-        };
-
-        for (int[] attackDirection : attackDirections) {
-            newRow = myPosition.getRow() + attackDirection[0];
-            newColumn = myPosition.getColumn() + attackDirection[1];
-            try {
-                ChessPosition newPosition = new ChessPosition(newRow, newColumn);
-                ChessPiece piece = board.getPiece(newPosition);
-                if (piece != null && piece.getTeamColor() != color) {
-                    moves.addAll(pawnPromotionCheck(new ChessMove(myPosition, newPosition)));
-                }
-            } catch (IllegalArgumentException e) {
-                // Ignore invalid positions
-            }
-        }
-
-
-        return moves;
     }
 
+    /**
+     * Checks if a pawn move is a promotion move and returns all possible promotion moves.
+     * If the move is not a promotion move, it returns a set with the move itself.
+     *
+     * @param move The move to check
+     * @return A set of promotion moves if the move is a promotion move, otherwise a set with the move itself
+     */
     private Collection<ChessMove> pawnPromotionCheck(ChessMove move) {
         Collection<ChessMove> moves = new HashSet<>();
         int promotionZone = color == ChessGame.TeamColor.WHITE ? 8 : 1;
