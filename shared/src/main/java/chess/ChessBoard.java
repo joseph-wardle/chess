@@ -21,6 +21,10 @@ public class ChessBoard {
         // resetBoard();
     }
 
+    public ChessBoard(ChessBoard board) {
+        this.board = new HashMap<>(board.board);
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *
