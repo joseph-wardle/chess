@@ -11,6 +11,7 @@ import java.util.Collection;
 public class ChessGame {
 
     private TeamColor teamColor;
+    private ChessBoard chessBoard;
 
     public ChessGame() {
         this.teamColor = TeamColor.WHITE;
@@ -48,7 +49,17 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = chessBoard.getPiece(startPosition);
+
+        if (piece == null) {
+            return null;
+        }
+
+        Collection<ChessMove> validMoves = piece.pieceMoves(chessBoard, startPosition);
+
+        // TODO: filter out moves that would leave the king in check
+
+        return validMoves;
     }
 
     /**
@@ -58,7 +69,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+
+        if (!validMoves.contains(move)) {
+            throw new InvalidMoveException("Invalid move");
+        }
+
+        chessBoard.addPiece(move.getEndPosition(), chessBoard.getPiece(move.getStartPosition()));
+        chessBoard.removePiece(move.getStartPosition());
     }
 
     /**

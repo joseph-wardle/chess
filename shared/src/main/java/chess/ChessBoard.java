@@ -40,6 +40,15 @@ public class ChessBoard {
         return board.get(position);
     }
 
+    /**
+     * Removes a chess piece from the chessboard
+     *
+     * @param position The position to remove the piece from
+     */
+    public void removePiece(ChessPosition position) {
+        board.remove(position);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
