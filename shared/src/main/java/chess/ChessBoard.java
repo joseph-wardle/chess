@@ -93,6 +93,10 @@ public class ChessBoard {
 
     }
 
+    public ChessPosition getPosition(ChessPiece piece) {
+        return board.entrySet().stream().filter(entry -> entry.getValue().equals(piece)).map(Map.Entry::getKey).findFirst().orElse(null);
+    }
+
     public Collection<ChessPiece> getAllPieces() {
         return board.values();
     }
