@@ -1,8 +1,10 @@
 package chess;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -90,4 +92,14 @@ public class ChessBoard {
         board.put(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
 
     }
+
+    public Collection<ChessPiece> getAllPieces() {
+        return board.values();
+    }
+
+    public Collection<ChessPiece> getTeamPieces(ChessGame.TeamColor team) {
+        return board.values().stream().filter(piece -> piece.getTeamColor() == team).collect(Collectors.toList());
+    }
+
+
 }
