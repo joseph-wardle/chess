@@ -64,7 +64,7 @@ public class ChessGame {
         for (ChessMove move : possibleMoves) {
             // Simulate the move
             ChessBoard simulatedBoard = new ChessBoard(chessBoard);
-            simulatedBoard.addPiece(move.getEndPosition(), simulatedBoard.getPiece(move.getStartPosition()));
+            simulatedBoard.addPiece(move.getEndPosition(), piece);
             simulatedBoard.removePiece(move.getStartPosition());
 
             // Check if the player is still in check after the move on the simulated board
@@ -177,12 +177,12 @@ public class ChessGame {
     public boolean isInStalemate(TeamColor teamColor) {
         Collection<ChessPiece> pieces = chessBoard.getAllPieces();
         if (!pieces.contains(new ChessPiece(teamColor, ChessPiece.PieceType.KING))) {
-            throw new RuntimeException("No king found for team");
+            return false;
         }
 
         for (ChessPiece piece : pieces) {
             if (piece.getTeamColor() == teamColor) {
-                Collection<ChessMove> validMoves = piece.pieceMoves(chessBoard, chessBoard.getPosition(piece));
+                Collection<ChessMove> validMoves = validMoves(chessBoard.getPosition(piece));
                 if (!validMoves.isEmpty()) {
                     return false;
                 }
