@@ -57,11 +57,7 @@ public class ChessGame {
             return null;
         }
 
-        Collection<ChessMove> validMoves = piece.pieceMoves(chessBoard, startPosition);
-
-        // TODO: filter out moves that would leave the king in check
-
-        return validMoves;
+        return piece.pieceMoves(chessBoard, startPosition);
     }
 
     /**
@@ -95,8 +91,15 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid move: You are still in check");
         }
 
-        chessBoard.addPiece(move.getEndPosition(), chessBoard.getPiece(move.getStartPosition()));
+        ChessPiece newPiece = null;
+        if (move.getPromotionPiece() != null) {
+            newPiece = new ChessPiece(teamColor, move.getPromotionPiece());
+        } else {
+            newPiece = piece;
+        }
+        chessBoard.addPiece(move.getEndPosition(), newPiece);
         chessBoard.removePiece(move.getStartPosition());
+        teamColor = teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
@@ -118,7 +121,8 @@ public class ChessGame {
         }
 
         if (kingPosition == null) {
-            throw new RuntimeException("King not found for team " + teamColor);
+            return false;
+            //throw new RuntimeException("King not found for team " + teamColor);
         }
 
         // Check if any opponent piece can move to the king's position
