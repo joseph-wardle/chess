@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -57,7 +58,22 @@ public class ChessGame {
             return null;
         }
 
-        return piece.pieceMoves(chessBoard, startPosition);
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(chessBoard, startPosition);
+        Collection<ChessMove> validMoves = new HashSet<>();
+
+        for (ChessMove move : possibleMoves) {
+            // Simulate the move
+            ChessBoard simulatedBoard = new ChessBoard(chessBoard);
+            simulatedBoard.addPiece(move.getEndPosition(), simulatedBoard.getPiece(move.getStartPosition()));
+            simulatedBoard.removePiece(move.getStartPosition());
+
+            // Check if the player is still in check after the move on the simulated board
+            if (!isInCheck(teamColor, simulatedBoard)) {
+                validMoves.add(move);
+            }
+        }
+
+        return validMoves;
     }
 
     /**
@@ -79,16 +95,6 @@ public class ChessGame {
 
         if (!validMoves.contains(move)) {
             throw new InvalidMoveException("Invalid move");
-        }
-
-        // Simulate the move
-        ChessBoard simulatedBoard = new ChessBoard(chessBoard);
-        simulatedBoard.addPiece(move.getEndPosition(), simulatedBoard.getPiece(move.getStartPosition()));
-        simulatedBoard.removePiece(move.getStartPosition());
-
-        // Check if the player is still in check after the move on the simulated board
-        if (isInCheck(teamColor, simulatedBoard)) {
-            throw new InvalidMoveException("Invalid move: You are still in check");
         }
 
         ChessPiece newPiece = null;
