@@ -118,7 +118,7 @@ public class ChessGame {
         ChessPosition kingPosition = null;
         Collection<ChessPiece> pieces = board.getAllPieces();
 
-        // Find the king's position
+        // Find the king
         for (ChessPiece piece : pieces) {
             if (piece.getTeamColor() == teamColor && piece.getPieceType() == ChessPiece.PieceType.KING) {
                 kingPosition = board.getPosition(piece);
@@ -131,7 +131,6 @@ public class ChessGame {
             //throw new RuntimeException("King not found for team " + teamColor);
         }
 
-        // Check if any opponent piece can move to the king's position
         for (ChessPiece piece : pieces) {
             if (piece.getTeamColor() != teamColor) {
                 Collection<ChessMove> opponentMoves = piece.pieceMoves(board, board.getPosition(piece));
@@ -160,20 +159,12 @@ public class ChessGame {
         Collection<ChessPiece> pieces = chessBoard.getAllPieces();
         for (ChessPiece piece : pieces) {
             if (piece.getTeamColor() == teamColor) {
-                Collection<ChessMove> validMoves = piece.pieceMoves(chessBoard, chessBoard.getPosition(piece));
-                for (ChessMove move : validMoves) {
-                    ChessBoard newBoard = new ChessBoard(chessBoard);
-                    newBoard.addPiece(move.getEndPosition(), newBoard.getPiece(move.getStartPosition()));
-                    newBoard.removePiece(move.getStartPosition());
-                    if (!isInCheck(teamColor)) {
-                        return false;
-                    }
-                }
+                Collection<ChessMove> validMoves = validMoves(chessBoard.getPosition(piece));
+                if (!validMoves.isEmpty()) return false;
             }
         }
 
-        return true;
-
+        return isInCheck(teamColor);
     }
 
     /**
