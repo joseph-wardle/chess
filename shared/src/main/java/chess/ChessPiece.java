@@ -14,13 +14,19 @@ public class ChessPiece {
     private final ChessGame.TeamColor color;
     private final PieceType type;
 
+    /**
+     * Constructs a ChessPiece with the specified color and type.
+     *
+     * @param pieceColor the color of the piece.
+     * @param type       the type of the piece.
+     */
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.color = pieceColor;
         this.type = type;
     }
 
     /**
-     * The various different chess piece types.
+     * Enum representing the various different chess piece types.
      */
     public enum PieceType {
         KING,
@@ -32,219 +38,298 @@ public class ChessPiece {
     }
 
     /**
-     * @return Which team this chess piece belongs to
+     * @return The team color of this chess piece.
      */
     public ChessGame.TeamColor getTeamColor() {
         return color;
     }
 
     /**
-     * @return The type of chess piece (e.g., KING, QUEEN)
+     * @return The type of chess piece.
      */
     public PieceType getPieceType() {
         return type;
     }
 
     /**
-     * Calculates all the valid moves a chess piece can make, excluding checks for
+     * Calculates all possible moves for this piece, excluding checks for
      * illegal moves that would leave the king in danger.
      *
-     * @return A collection of valid moves.
+     * @param board           The current state of the chessboard.
+     * @param currentPosition The current position of this piece.
+     * @return A collection of possible moves.
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition currentPosition) {
         return switch (type) {
-            case KING -> kingMoves(board, myPosition);
-            case QUEEN -> queenMoves(board, myPosition);
-            case BISHOP -> bishopMoves(board, myPosition);
-            case KNIGHT -> knightMoves(board, myPosition);
-            case ROOK -> rookMoves(board, myPosition);
-            case PAWN -> pawnMoves(board, myPosition);
+            case KING -> calculateKingMoves(board, currentPosition);
+            case QUEEN -> calculateQueenMoves(board, currentPosition);
+            case BISHOP -> calculateBishopMoves(board, currentPosition);
+            case KNIGHT -> calculateKnightMoves(board, currentPosition);
+            case ROOK -> calculateRookMoves(board, currentPosition);
+            case PAWN -> calculatePawnMoves(board, currentPosition);
         };
     }
 
     /**
-     * Generates moves in a given direction until a piece is encountered or the edge of the board is reached.
+     * Calculates all possible king moves from the current position.
      *
-     * @param directions The directions to generate moves. Numbers should either be `1` or `0`
+     * @param board    The current state of the chessboard.
+     * @param position The current position of the king.
+     * @return A collection of king moves.
      */
-    private void generateDirectionalMoves(ChessBoard board, ChessPosition myPosition, int[][] directions, Collection<ChessMove> moves) {
-        for (int[] direction : directions) {
-            for (int i = 1; i < 8; i++) {
-                int newRow = myPosition.getRow() + direction[0] * i;
-                int newColumn = myPosition.getColumn() + direction[1] * i;
-                try {
-                    ChessPosition newPosition = new ChessPosition(newRow, newColumn);
-                    ChessPiece piece = board.getPiece(newPosition);
-                    if (piece == null || piece.getTeamColor() != color) {
-                        moves.add(new ChessMove(myPosition, newPosition));
-                    }
-                    if (piece != null) {
-                        break;
-                    }
-                } catch (IllegalArgumentException e) {
-                    // Ignore invalid positions
-                }
-            }
-        }
-    }
-
-    /**
-     * Generates moves at fixed steps.
-     *
-     * @param steps The steps to generate moves.
-     */
-
-    private void generateStepMoves(ChessBoard board, ChessPosition myPosition, int[][] steps, Collection<ChessMove> moves) {
-        for (int[] step : steps) {
-            int newRow = myPosition.getRow() + step[0];
-            int newColumn = myPosition.getColumn() + step[1];
-            try {
-                ChessPosition newPosition = new ChessPosition(newRow, newColumn);
-                ChessPiece piece = board.getPiece(newPosition);
-                if (piece == null || piece.getTeamColor() != color) {
-                    moves.add(new ChessMove(myPosition, newPosition));
-                }
-            } catch (IllegalArgumentException e) {
-                // Ignore invalid positions
-            }
-        }
-    }
-
-    private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
+    private Collection<ChessMove> calculateKingMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new HashSet<>();
         int[][] directions = {
                 {-1, -1}, {-1,  0}, {-1,  1},
-                { 0, -1},           { 0,  1},
+                { 0, -1},          { 0,  1},
                 { 1, -1}, { 1,  0}, { 1,  1}
         };
 
-        generateStepMoves(board, myPosition, directions, moves);
+        generateStepMoves(board, position, directions, moves);
 
         return moves;
     }
 
-    private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
+    /**
+     * Calculates all possible queen moves from the current position.
+     *
+     * @param board    The current state of the chessboard.
+     * @param position The current position of the queen.
+     * @return A collection of queen moves.
+     */
+    private Collection<ChessMove> calculateQueenMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new HashSet<>();
-        moves.addAll(rookMoves(board, myPosition));
-        moves.addAll(bishopMoves(board, myPosition));
+        moves.addAll(calculateRookMoves(board, position));
+        moves.addAll(calculateBishopMoves(board, position));
         return moves;
     }
 
-    private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
+    /**
+     * Calculates all possible bishop moves from the current position.
+     *
+     * @param board    The current state of the chessboard.
+     * @param position The current position of the bishop.
+     * @return A collection of bishop moves.
+     */
+    private Collection<ChessMove> calculateBishopMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new HashSet<>();
         int[][] directions = {
                 {-1, -1}, {-1,  1},
                 { 1, -1}, { 1,  1}
         };
 
-        generateDirectionalMoves(board, myPosition, directions, moves);
-
+        generateDirectionalMoves(board, position, directions, moves);
         return moves;
     }
 
-    private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
+    /**
+     * Calculates all possible knight moves from the current position.
+     *
+     * @param board    The current state of the chessboard.
+     * @param position The current position of the knight.
+     * @return A collection of knight moves.
+     */
+    private Collection<ChessMove> calculateKnightMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new HashSet<>();
-        int[][] directions = {
+        int[][] steps = {
                 {-2, -1}, {-2,  1},
                 {-1, -2}, {-1,  2},
                 { 1, -2}, { 1,  2},
                 { 2, -1}, { 2,  1}
         };
 
-        generateStepMoves(board, myPosition, directions, moves);
-
+        generateStepMoves(board, position, steps, moves);
         return moves;
     }
 
-    private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
+    /**
+     * Calculates all possible rook moves from the current position.
+     *
+     * @param board    The current state of the chessboard.
+     * @param position The current position of the rook.
+     * @return A collection of rook moves.
+     */
+    private Collection<ChessMove> calculateRookMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new HashSet<>();
         int[][] directions = {
-                     {-1,  0},
+                {-1,  0},
                 { 0, -1}, { 0,  1},
-                     { 1,  0}
+                { 1,  0}
         };
 
-        generateDirectionalMoves(board, myPosition, directions, moves);
-
+        generateDirectionalMoves(board, position, directions, moves);
         return moves;
     }
 
-    private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
+    /**
+     * Calculates all possible pawn moves from the current position.
+     *
+     * @param board    The current state of the chessboard.
+     * @param position The current position of the pawn.
+     * @return A collection of pawn moves.
+     */
+    private Collection<ChessMove> calculatePawnMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new HashSet<>();
-        int direction = color == ChessGame.TeamColor.WHITE ? 1 : -1;
-        int startRow = color == ChessGame.TeamColor.WHITE ? 2 : 7;
+        int direction = (color == ChessGame.TeamColor.WHITE) ? 1 : -1;
+        int startRow = (color == ChessGame.TeamColor.WHITE) ? 2 : 7;
 
-        addPawnForwardMoves(board, myPosition, direction, startRow, moves);
-        AddPawnAttackMoves(board, myPosition, direction, moves);
+        addPawnForwardMoves(board, position, direction, startRow, moves);
+        addPawnAttackMoves(board, position, direction, moves);
 
         return moves;
     }
 
-    private void AddPawnAttackMoves(ChessBoard board, ChessPosition myPosition, int direction, Collection<ChessMove> moves) {
-        int[][] attackDirections = {
-                {direction, -1},
-                {direction,  1}
-        };
-
-        for (int[] attackDirection : attackDirections) {
-            int newRow = myPosition.getRow() + attackDirection[0];
-            int newColumn = myPosition.getColumn() + attackDirection[1];
-            try {
-                ChessPosition newPosition = new ChessPosition(newRow, newColumn);
-                ChessPiece piece = board.getPiece(newPosition);
-                if (piece != null && piece.getTeamColor() != color) {
-                    moves.addAll(pawnPromotionCheck(new ChessMove(myPosition, newPosition)));
-                }
-            } catch (IllegalArgumentException e) {
-                // Ignore invalid positions
-            }
-        }
-    }
-
-    private void addPawnForwardMoves(ChessBoard board, ChessPosition myPosition, int direction, int startRow, Collection<ChessMove> moves) {
-        int newRow = myPosition.getRow() + direction;
-        int newColumn = myPosition.getColumn();
-        try {
-            ChessPosition newPosition = new ChessPosition(newRow, newColumn);
-            ChessPiece piece = board.getPiece(newPosition);
-            if (piece == null) {
-                moves.addAll(pawnPromotionCheck(new ChessMove(myPosition, newPosition)));
-                if (myPosition.getRow() == startRow) {
-                    newRow = myPosition.getRow() + 2 * direction;
-                    newPosition = new ChessPosition(newRow, newColumn);
-                    piece = board.getPiece(newPosition);
-                    if (piece == null) {
-                        moves.add(new ChessMove(myPosition, newPosition));
+    /**
+     * Generates directional moves (e.g., for bishops, rooks, queens).
+     *
+     * @param board         The current state of the chessboard.
+     * @param currentPosition The current position of the piece.
+     * @param directions    The directions to move in.
+     * @param moves         The collection to add valid moves to.
+     */
+    private void generateDirectionalMoves(ChessBoard board, ChessPosition currentPosition, int[][] directions, Collection<ChessMove> moves) {
+        for (int[] direction : directions) {
+            for (int i = 1; i < 8; i++) {
+                int newRow = currentPosition.getRow() + direction[0] * i;
+                int newCol = currentPosition.getColumn() + direction[1] * i;
+                try {
+                    ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                    ChessPiece targetPiece = board.getPiece(newPosition);
+                    if (targetPiece == null || targetPiece.getTeamColor() != color) {
+                        moves.addAll(createPromotionMoves(currentPosition, newPosition));
+                        if (targetPiece != null) {
+                            break; // Can't move past another piece
+                        }
+                    } else {
+                        break; // Blocked by own piece
                     }
+                } catch (IllegalArgumentException e) {
+                    // Position is off the board, stop in this direction
+                    break;
                 }
             }
-        } catch (IllegalArgumentException e) {
-            // Ignore invalid positions
         }
     }
 
     /**
-     * Checks if a pawn move is a promotion move and returns all possible promotion moves.
-     * If the move is not a promotion move, it returns a set with the move itself.
+     * Generates step moves (e.g., for kings, knights).
      *
-     * @param move The move to check
-     * @return A set of promotion moves if the move is a promotion move, otherwise a set with the move itself
+     * @param board         The current state of the chessboard.
+     * @param currentPosition The current position of the piece.
+     * @param steps         The specific steps to move.
+     * @param moves         The collection to add valid moves to.
      */
-    private Collection<ChessMove> pawnPromotionCheck(ChessMove move) {
-        Collection<ChessMove> moves = new HashSet<>();
-        int promotionZone = color == ChessGame.TeamColor.WHITE ? 8 : 1;
-        if (move.getEndPosition().getRow() == promotionZone) {
-            ChessPosition startPosition = move.getStartPosition();
-            ChessPosition endPosition = move.getEndPosition();
-            moves.add(new ChessMove(startPosition, endPosition, PieceType.QUEEN));
-            moves.add(new ChessMove(startPosition, endPosition, PieceType.ROOK));
-            moves.add(new ChessMove(startPosition, endPosition, PieceType.BISHOP));
-            moves.add(new ChessMove(startPosition, endPosition, PieceType.KNIGHT));
+    private void generateStepMoves(ChessBoard board, ChessPosition currentPosition, int[][] steps, Collection<ChessMove> moves) {
+        for (int[] step : steps) {
+            int newRow = currentPosition.getRow() + step[0];
+            int newCol = currentPosition.getColumn() + step[1];
+            try {
+                ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                ChessPiece targetPiece = board.getPiece(newPosition);
+                if (targetPiece == null || targetPiece.getTeamColor() != color) {
+                    moves.addAll(createPromotionMoves(currentPosition, newPosition));
+                }
+            } catch (IllegalArgumentException e) {
+                // Position is off the board, ignore
+            }
+        }
+    }
+
+    /**
+     * Adds forward moves for a pawn, including double moves from the starting position.
+     *
+     * @param board      The current state of the chessboard.
+     * @param position   The current position of the pawn.
+     * @param direction  The direction the pawn moves in.
+     * @param startRow   The starting row of the pawn.
+     * @param moves      The collection to add valid moves to.
+     */
+    private void addPawnForwardMoves(ChessBoard board, ChessPosition position, int direction, int startRow, Collection<ChessMove> moves) {
+        // Single step forward
+        int forwardRow = position.getRow() + direction;
+        int column = position.getColumn();
+        try {
+            ChessPosition forwardPosition = new ChessPosition(forwardRow, column);
+            if (board.getPiece(forwardPosition) == null) {
+                moves.addAll(createPromotionMoves(position, forwardPosition));
+
+                // Double step forward from starting position
+                if (position.getRow() == startRow) {
+                    int doubleForwardRow = position.getRow() + 2 * direction;
+                    ChessPosition doubleForwardPosition = new ChessPosition(doubleForwardRow, column);
+                    if (board.getPiece(doubleForwardPosition) == null) {
+                        moves.add(new ChessMove(position, doubleForwardPosition));
+                    }
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            // Position is off the board, ignore
+        }
+    }
+
+    /**
+     * Adds attack moves for a pawn.
+     *
+     * @param board      The current state of the chessboard.
+     * @param position   The current position of the pawn.
+     * @param direction  The direction the pawn moves in.
+     * @param moves      The collection to add valid moves to.
+     */
+    private void addPawnAttackMoves(ChessBoard board, ChessPosition position, int direction, Collection<ChessMove> moves) {
+        int[][] attackSteps = {
+                {direction, -1},
+                {direction,  1}
+        };
+
+        for (int[] step : attackSteps) {
+            int attackRow = position.getRow() + step[0];
+            int attackCol = position.getColumn() + step[1];
+            try {
+                ChessPosition attackPosition = new ChessPosition(attackRow, attackCol);
+                ChessPiece targetPiece = board.getPiece(attackPosition);
+                if (targetPiece != null && targetPiece.getTeamColor() != color) {
+                    moves.addAll(createPromotionMoves(position, attackPosition));
+                }
+            } catch (IllegalArgumentException e) {
+                // Position is off the board, ignore
+            }
+        }
+    }
+
+    /**
+     * Creates promotion moves if the pawn reaches the promotion zone.
+     *
+     * @param start the starting position.
+     * @param end   the ending position.
+     * @return A collection of promotion moves if applicable, otherwise a single move.
+     */
+    private Collection<ChessMove> createPromotionMoves(ChessPosition start, ChessPosition end) {
+        Collection<ChessMove> promotionMoves = new HashSet<>();
+        int promotionRow = (color == ChessGame.TeamColor.WHITE) ? 8 : 1;
+
+        if (end.getRow() == promotionRow) {
+            for (PieceType promotionType : new PieceType[]{PieceType.QUEEN, PieceType.ROOK, PieceType.BISHOP, PieceType.KNIGHT}) {
+                promotionMoves.add(new ChessMove(start, end, promotionType));
+            }
         } else {
-            moves.add(move);
+            promotionMoves.add(new ChessMove(start, end));
         }
 
-        return moves;
+        return promotionMoves;
+    }
+
+    /**
+     * @return The symbol representing this chess piece.
+     */
+    public char getSymbol() {
+        return switch (type) {
+            case KING -> (color == ChessGame.TeamColor.WHITE) ? 'K' : 'k';
+            case QUEEN -> (color == ChessGame.TeamColor.WHITE) ? 'Q' : 'q';
+            case ROOK -> (color == ChessGame.TeamColor.WHITE) ? 'R' : 'r';
+            case BISHOP -> (color == ChessGame.TeamColor.WHITE) ? 'B' : 'b';
+            case KNIGHT -> (color == ChessGame.TeamColor.WHITE) ? 'N' : 'n';
+            case PAWN -> (color == ChessGame.TeamColor.WHITE) ? 'P' : 'p';
+        };
     }
 
     @Override
@@ -258,5 +343,13 @@ public class ChessPiece {
     @Override
     public int hashCode() {
         return Objects.hash(color, type);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "color=" + color +
+                ", type=" + type +
+                '}';
     }
 }
