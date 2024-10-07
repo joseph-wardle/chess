@@ -25,6 +25,7 @@ public class ChessBoard {
         this.board = new HashMap<>(board.board);
     }
 
+
     /**
      * Adds a chess piece to the chessboard
      *
@@ -32,7 +33,9 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
+//        System.out.println("Adding piece " + piece + " at position " + position);
         board.put(position, piece);
+//        printBoard();
     }
 
     /**
@@ -97,16 +100,38 @@ public class ChessBoard {
 
     }
 
-    public ChessPosition getPosition(ChessPiece piece) {
-        return board.entrySet().stream().filter(entry -> entry.getValue().equals(piece)).map(Map.Entry::getKey).findFirst().orElse(null);
-    }
-
     public Collection<ChessPiece> getAllPieces() {
         return board.values();
     }
 
     public Collection<ChessPiece> getTeamPieces(ChessGame.TeamColor team) {
         return board.values().stream().filter(piece -> piece.getTeamColor() == team).collect(Collectors.toList());
+    }
+
+    public void printBoard() {
+        char[][] displayBoard = new char[8][8];
+
+        // Initialize the board with empty spaces
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                displayBoard[i][j] = ' ';
+            }
+        }
+
+        // Place pieces on the board by iterating through each position
+        for (Map.Entry<ChessPosition, ChessPiece> entry : board.entrySet()) {
+            ChessPosition position = entry.getKey();
+            ChessPiece piece = entry.getValue();
+            displayBoard[position.getRow() - 1][position.getColumn() - 1] = piece.getSymbol();
+        }
+
+        // Print the board
+        for (int i = 7; i >= 0; i--) {
+            for (int j = 0; j < 8; j++) {
+                System.out.print("|" + displayBoard[i][j]);
+            }
+            System.out.println("|");
+        }
     }
 
 

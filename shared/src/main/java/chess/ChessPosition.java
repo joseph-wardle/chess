@@ -29,6 +29,15 @@ public class ChessPosition {
         return row;
     }
 
+
+    /**
+     * @return which column this position is in
+     * 1 codes for the left row
+     */
+    public int getColumn() {
+        return col;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -42,11 +51,9 @@ public class ChessPosition {
         return Objects.hash(row, col);
     }
 
-    /**
-     * @return which column this position is in
-     * 1 codes for the left row
-     */
-    public int getColumn() {
-        return col;
+
+    @Override
+    public String toString() {
+        return  "[" + row + "," + col + "]";
     }
 }

@@ -247,6 +247,25 @@ public class ChessPiece {
         return moves;
     }
 
+    public char getSymbol() {
+        switch (this.type) {
+            case KING:
+                return this.color == ChessGame.TeamColor.WHITE ? 'K' : 'k';
+            case QUEEN:
+                return this.color == ChessGame.TeamColor.WHITE ? 'Q' : 'q';
+            case ROOK:
+                return this.color == ChessGame.TeamColor.WHITE ? 'R' : 'r';
+            case BISHOP:
+                return this.color == ChessGame.TeamColor.WHITE ? 'B' : 'b';
+            case KNIGHT:
+                return this.color == ChessGame.TeamColor.WHITE ? 'N' : 'n';
+            case PAWN:
+                return this.color == ChessGame.TeamColor.WHITE ? 'P' : 'p';
+            default:
+                throw new IllegalArgumentException("Unknown piece type: " + this.type);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -258,5 +277,10 @@ public class ChessPiece {
     @Override
     public int hashCode() {
         return Objects.hash(color, type);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{ " + color + ", " + type + " }";
     }
 }
