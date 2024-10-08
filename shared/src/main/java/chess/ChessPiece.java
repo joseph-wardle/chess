@@ -196,7 +196,7 @@ public class ChessPiece {
                     ChessPosition newPosition = new ChessPosition(newRow, newCol);
                     ChessPiece targetPiece = board.getPiece(newPosition);
                     if (targetPiece == null || targetPiece.getTeamColor() != color) {
-                        moves.addAll(createPromotionMoves(currentPosition, newPosition));
+                        moves.add(new ChessMove(currentPosition, newPosition));
                         if (targetPiece != null) {
                             break; // Can't move past another piece
                         }
@@ -227,7 +227,7 @@ public class ChessPiece {
                 ChessPosition newPosition = new ChessPosition(newRow, newCol);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if (targetPiece == null || targetPiece.getTeamColor() != color) {
-                    moves.addAll(createPromotionMoves(currentPosition, newPosition));
+                    moves.add(new ChessMove(currentPosition, newPosition));
                 }
             } catch (IllegalArgumentException e) {
                 // Position is off the board, ignore
@@ -304,6 +304,7 @@ public class ChessPiece {
      * @return A collection of promotion moves if applicable, otherwise a single move.
      */
     private Collection<ChessMove> createPromotionMoves(ChessPosition start, ChessPosition end) {
+
         Collection<ChessMove> promotionMoves = new HashSet<>();
         int promotionRow = (color == ChessGame.TeamColor.WHITE) ? 8 : 1;
 
