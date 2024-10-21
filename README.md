@@ -1,6 +1,7 @@
 # ♕ BYU CS 240 Chess
 
 This project demonstrates mastery of proper software design, client/server architecture, networking using HTTP and WebSocket, database persistence, unit testing, serialization, and security.
+I am addint a line to increase my commit count!
 
 ## 10k Architecture Overview
 
