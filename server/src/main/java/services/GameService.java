@@ -4,7 +4,6 @@ import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.TeamColorAlreadyTakenException;
 import models.Game;
-import models.AuthToken;
 
 import java.util.List;
 

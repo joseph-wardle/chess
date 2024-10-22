@@ -1,5 +1,3 @@
-// File: server/src/test/java/service/GameServiceTest.java
-
 package service;
 
 import org.junit.jupiter.api.*;
@@ -41,7 +39,7 @@ public class GameServiceTest {
 
     @Test
     public void createGame_InvalidName() throws DataAccessException {
-        String gameName = ""; // Invalid game name
+        String gameName = "";
 
         Exception exception = assertThrows(DataAccessException.class, () -> {
             gameService.createGame(gameName);
@@ -51,14 +49,11 @@ public class GameServiceTest {
 
     @Test
     public void joinGame_Success() throws DataAccessException {
-        // Register user to create auth token
         User user = new User("testuser", "password123", "test@example.com");
         AuthToken auth = userService.register(user);
 
-        // Create game
         Game game = gameService.createGame("Test Game");
 
-        // Join game as white
         gameService.joinGame(game.getGameID(), "testuser", "white");
 
         Game updatedGame = dataAccess.getGame(game.getGameID());
@@ -80,11 +75,9 @@ public class GameServiceTest {
 
     @Test
     public void joinGame_InvalidPlayerColor() throws DataAccessException {
-        // Register user to create auth token
         User user = new User("testuser", "password123", "test@example.com");
         AuthToken auth = userService.register(user);
 
-        // Create game
         Game game = gameService.createGame("Test Game");
 
         String invalidColor = "green";
@@ -97,20 +90,16 @@ public class GameServiceTest {
 
     @Test
     public void joinGame_ColorAlreadyTaken() throws DataAccessException {
-        // Register two users
         User user1 = new User("user1", "password1", "user1@example.com");
         AuthToken auth1 = userService.register(user1);
 
         User user2 = new User("user2", "password2", "user2@example.com");
         AuthToken auth2 = userService.register(user2);
 
-        // Create game
         Game game = gameService.createGame("Test Game");
 
-        // User1 joins as white
         gameService.joinGame(game.getGameID(), "user1", "white");
 
-        // User2 attempts to join as white, which is already taken
         Exception exception = assertThrows(TeamColorAlreadyTakenException.class, () -> {
             gameService.joinGame(game.getGameID(), "user2", "white");
         }, "Joining a game with an already taken color should throw TeamColorAlreadyTakenException");
@@ -119,7 +108,6 @@ public class GameServiceTest {
 
     @Test
     public void listGames_Success() throws DataAccessException {
-        // Create multiple games
         Game game1 = gameService.createGame("Game 1");
         Game game2 = gameService.createGame("Game 2");
 
