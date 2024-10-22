@@ -1,4 +1,4 @@
-package java.service;
+package service;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
