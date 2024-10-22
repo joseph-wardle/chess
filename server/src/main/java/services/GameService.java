@@ -15,8 +15,8 @@ public class GameService {
     }
 
     public Game createGame(String gameName, String username) throws DataAccessException {
-        Game game = new Game();
-        game.setGameName(gameName);
+        int gameId = dataAccess.getAllGames().size() + 1;
+        Game game = new Game(gameId, gameName, null, null);
         game.setWhiteUsername(username); // Assuming creator is white by default
         dataAccess.createGame(game);
         return game;
