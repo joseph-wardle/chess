@@ -147,32 +147,6 @@ public class ChessBoard {
         return false;
     }
 
-    /**
-     * Prints the chessboard to the console.
-     */
-    public void printBoard() {
-        char[][] displayBoard = new char[8][8];
-
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                displayBoard[row][col] = ' ';
-            }
-        }
-
-        for (Map.Entry<ChessPosition, ChessPiece> entry : board.entrySet()) {
-            ChessPosition position = entry.getKey();
-            ChessPiece piece = entry.getValue();
-            displayBoard[position.getRow() - 1][position.getColumn() - 1] = piece.getSymbol();
-        }
-
-        for (int row = 7; row >= 0; row--) {
-            for (int col = 0; col < 8; col++) {
-                System.out.print("|" + displayBoard[row][col]);
-            }
-            System.out.println("|");
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

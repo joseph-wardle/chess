@@ -192,18 +192,20 @@ public class ChessPiece {
             for (int i = 1; i < 8; i++) {
                 int newRow = currentPosition.getRow() + direction[0] * i;
                 int newCol = currentPosition.getColumn() + direction[1] * i;
+                ChessPosition newPosition;
                 try {
-                    ChessPosition newPosition = new ChessPosition(newRow, newCol);
-                    ChessPiece targetPiece = board.getPiece(newPosition);
-                    if (targetPiece == null || targetPiece.getTeamColor() != color) {
-                        moves.add(new ChessMove(currentPosition, newPosition));
-                        if (targetPiece != null) {
-                            break; // Can't move past another piece
-                        }
-                    } else {
-                        break; // Blocked by own piece
-                    }
+                    newPosition = new ChessPosition(newRow, newCol);
                 } catch (IllegalArgumentException e) {
+                    break;
+                }
+
+                ChessPiece targetPiece = board.getPiece(newPosition);
+                if (targetPiece != null && targetPiece.getTeamColor() == color) {
+                    break;
+                }
+
+                moves.add(new ChessMove(currentPosition, newPosition));
+                if (targetPiece != null) {
                     break;
                 }
             }

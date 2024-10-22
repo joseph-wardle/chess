@@ -60,7 +60,9 @@ public class Game {
             return false;
         }
         Game game = (Game) o;
-        return gameID == game.gameID && Objects.equals(gameName, game.gameName) && Objects.equals(whiteUsername, game.whiteUsername) && Objects.equals(blackUsername, game.blackUsername);
+        return gameID == game.gameID && Objects.equals(gameName, game.gameName)
+                && Objects.equals(whiteUsername, game.whiteUsername)
+                && Objects.equals(blackUsername, game.blackUsername);
     }
 
     @Override
