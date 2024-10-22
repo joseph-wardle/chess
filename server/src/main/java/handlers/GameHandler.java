@@ -1,6 +1,7 @@
 package handlers;
 
 import dataaccess.TeamColorAlreadyTakenException;
+import models.JoinGameRequest;
 import services.GameService;
 import services.AuthService;
 import models.Game;
@@ -59,13 +60,12 @@ public class GameHandler {
         try {
             String authToken = req.headers("Authorization");
             AuthToken auth = authService.authenticate(authToken);
-            Map<String, Object> requestBody = gson.fromJson(req.body(), Map.class);
-            String playerColor = (String) requestBody.get("playerColor");
-            Double gameIdDouble = (Double) requestBody.get("gameID");
-            if (playerColor == null || gameIdDouble == null) {
+            JoinGameRequest joinRequest = gson.fromJson(req.body(), JoinGameRequest.class);
+            String playerColor = joinRequest.getPlayerColor();
+            int gameId = joinRequest.getGameID();
+            if (playerColor == null || playerColor.isEmpty()) {
                 throw new Exception("playerColor and gameID are required.");
             }
-            int gameId = gameIdDouble.intValue();
             gameService.joinGame(gameId, auth.getUsername(), playerColor);
             res.status(200);
             res.type("application/json");
