@@ -51,7 +51,11 @@ public class GameHandler {
             res.status(200); // Changed from 201 to 200 to match test expectations
             res.type("application/json");
             return gson.toJson(Map.of("gameId", game.getGameId(), "gameName", game.getGameName()));
-        } catch (Exception e) {
+        } catch (InvalidAuthTokenException e) {
+            res.status(401);
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
+        }
+        catch (Exception e) {
             res.status(400); // Bad Request
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         }
