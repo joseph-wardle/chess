@@ -47,10 +47,10 @@ public class GameHandler {
             if (gameName == null || gameName.isEmpty()) {
                 throw new Exception("Game name is required.");
             }
-            Game game = gameService.createGame(gameName, auth.getUsername());
-            res.status(200); // Changed from 201 to 200 to match test expectations
+            Game game = gameService.createGame(gameName);
+            res.status(200);
             res.type("application/json");
-            return gson.toJson(Map.of("gameId", game.getGameId(), "gameName", game.getGameName()));
+            return gson.toJson(Map.of("gameID", game.getGameId(), "gameName", game.getGameName()));
         } catch (InvalidAuthTokenException e) {
             res.status(401);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
