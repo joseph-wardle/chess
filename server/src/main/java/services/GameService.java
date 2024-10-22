@@ -2,6 +2,7 @@ package services;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.TeamColorAlreadyTakenException;
 import models.Game;
 import models.AuthToken;
 
@@ -22,24 +23,43 @@ public class GameService {
         return game;
     }
 
+    /**
+     * Allows a user to join a game with a specified team color.
+     *
+     * @param gameId      The ID of the game to join.
+     * @param username    The username of the player joining the game.
+     * @param playerColor The desired team color ("white" or "black").
+     * @throws DataAccessException if the game is not found, the color is invalid, or the color is already taken.
+     */
     public void joinGame(int gameId, String username, String playerColor) throws DataAccessException {
         Game game = dataAccess.getGame(gameId);
         if (game == null) {
             throw new DataAccessException("Game not found.");
         }
-        if (playerColor.equalsIgnoreCase("white")) {
-            if (game.getWhiteUsername() != null) {
-                throw new DataAccessException("White player already joined.");
-            }
-            game.setWhiteUsername(username);
-        } else if (playerColor.equalsIgnoreCase("black")) {
-            if (game.getBlackUsername() != null) {
-                throw new DataAccessException("Black player already joined.");
-            }
-            game.setBlackUsername(username);
-        } else {
-            throw new DataAccessException("Invalid player color.");
+
+        if (playerColor == null || playerColor.isEmpty()) {
+            throw new DataAccessException("playerColor is required.");
         }
+
+        playerColor = playerColor.toLowerCase();
+
+        switch (playerColor) {
+            case "white":
+                if (game.getWhiteUsername() != null && !game.getWhiteUsername().equals(username)) {
+                    throw new TeamColorAlreadyTakenException("White player is already taken.");
+                }
+                game.setWhiteUsername(username);
+                break;
+            case "black":
+                if (game.getBlackUsername() != null && !game.getBlackUsername().equals(username)) {
+                    throw new TeamColorAlreadyTakenException("Black player is already taken.");
+                }
+                game.setBlackUsername(username);
+                break;
+            default:
+                throw new DataAccessException("Invalid player color.");
+        }
+
         dataAccess.updateGame(game);
     }
 
@@ -47,7 +67,18 @@ public class GameService {
         return dataAccess.getAllGames();
     }
 
+    /**
+     * Retrieves a game by its ID.
+     *
+     * @param gameId The ID of the game.
+     * @return The Game object.
+     * @throws DataAccessException if the game is not found.
+     */
     public Game getGame(int gameId) throws DataAccessException {
-        return dataAccess.getGame(gameId);
+        Game game = dataAccess.getGame(gameId);
+        if (game == null) {
+            throw new DataAccessException("Game not found.");
+        }
+        return game;
     }
 }

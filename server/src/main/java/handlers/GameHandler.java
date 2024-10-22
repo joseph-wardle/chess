@@ -1,5 +1,6 @@
 package handlers;
 
+import dataaccess.TeamColorAlreadyTakenException;
 import services.GameService;
 import services.AuthService;
 import models.Game;
@@ -45,11 +46,11 @@ public class GameHandler {
                 throw new Exception("Game name is required.");
             }
             Game game = gameService.createGame(gameName, auth.getUsername());
-            res.status(201);
+            res.status(200); // Changed from 201 to 200 to match test expectations
             res.type("application/json");
             return gson.toJson(Map.of("gameId", game.getGameId(), "gameName", game.getGameName()));
         } catch (Exception e) {
-            res.status(400);
+            res.status(400); // Bad Request
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         }
     }
@@ -68,7 +69,7 @@ public class GameHandler {
             gameService.joinGame(gameId, auth.getUsername(), playerColor);
             res.status(200);
             res.type("application/json");
-            Game game = gameService.getGame(gameId); // Assume getGame method exists
+            Game game = gameService.getGame(gameId);
             return gson.toJson(Map.of(
                     "gameId", game.getGameId(),
                     "status", "joined",
@@ -77,8 +78,11 @@ public class GameHandler {
                             "black", game.getBlackUsername()
                     )
             ));
+        } catch (TeamColorAlreadyTakenException e) {
+            res.status(403); // Forbidden
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         } catch (Exception e) {
-            res.status(400);
+            res.status(400); // Bad Request
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         }
     }
