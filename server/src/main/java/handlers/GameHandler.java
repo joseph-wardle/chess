@@ -1,5 +1,6 @@
 package handlers;
 
+import dataaccess.InvalidAuthTokenException;
 import dataaccess.TeamColorAlreadyTakenException;
 import models.JoinGameRequest;
 import services.GameService;
@@ -81,7 +82,11 @@ public class GameHandler {
         } catch (TeamColorAlreadyTakenException e) {
             res.status(403); // Forbidden
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
-        } catch (Exception e) {
+        } catch (InvalidAuthTokenException e) {
+            res.status(401);
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
+        }
+        catch (Exception e) {
             res.status(400); // Bad Request
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         }

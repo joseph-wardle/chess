@@ -2,6 +2,7 @@ package services;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.InvalidAuthTokenException;
 import models.AuthToken;
 
 public class AuthService {
@@ -14,7 +15,7 @@ public class AuthService {
     public AuthToken authenticate(String token) throws DataAccessException {
         AuthToken auth = dataAccess.getAuth(token);
         if (auth == null) {
-            throw new DataAccessException("Invalid auth token.");
+            throw new InvalidAuthTokenException("Invalid auth token.");
         }
         return auth;
     }
