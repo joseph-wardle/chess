@@ -25,7 +25,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void createGame_Success() throws DataAccessException {
+    public void createGameSuccess() throws DataAccessException {
         String gameName = "Test Game";
         Game game = gameService.createGame(gameName);
 
@@ -38,7 +38,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void createGame_InvalidName() throws DataAccessException {
+    public void createGameInvalidName() throws DataAccessException {
         String gameName = "";
 
         Exception exception = assertThrows(DataAccessException.class, () -> {
@@ -48,7 +48,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void joinGame_Success() throws DataAccessException {
+    public void joinGameSuccess() throws DataAccessException {
         User user = new User("testuser", "password123", "test@example.com");
         AuthToken auth = userService.register(user);
 
@@ -62,7 +62,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void joinGame_GameNotFound() throws DataAccessException {
+    public void joinGameGameNotFound() throws DataAccessException {
         String username = "testuser";
         String playerColor = "white";
         int invalidGameId = 999;
@@ -74,7 +74,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void joinGame_InvalidPlayerColor() throws DataAccessException {
+    public void joinGameInvalidPlayerColor() throws DataAccessException {
         User user = new User("testuser", "password123", "test@example.com");
         AuthToken auth = userService.register(user);
 
@@ -89,7 +89,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void joinGame_ColorAlreadyTaken() throws DataAccessException {
+    public void joinGameColorAlreadyTaken() throws DataAccessException {
         User user1 = new User("user1", "password1", "user1@example.com");
         AuthToken auth1 = userService.register(user1);
 
@@ -107,7 +107,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void listGames_Success() throws DataAccessException {
+    public void listGamesSuccess() throws DataAccessException {
         Game game1 = gameService.createGame("Game 1");
         Game game2 = gameService.createGame("Game 2");
 
@@ -118,14 +118,14 @@ public class GameServiceTest {
     }
 
     @Test
-    public void listGames_NoGames() throws DataAccessException {
+    public void listGamesNoGames() throws DataAccessException {
         List<Game> games = gameService.listGames();
         assertNotNull(games, "Games list should not be null");
         assertTrue(games.isEmpty(), "Games list should be empty when no games are created");
     }
 
     @Test
-    public void getGame_Success() throws DataAccessException {
+    public void getGameSuccess() throws DataAccessException {
         Game game = gameService.createGame("Test Game");
         Game retrievedGame = gameService.getGame(game.getGameID());
 
@@ -133,7 +133,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void getGame_NotFound() throws DataAccessException {
+    public void getGameNotFound() throws DataAccessException {
         int invalidGameId = 999;
 
         Exception exception = assertThrows(DataAccessException.class, () -> {

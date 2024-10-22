@@ -22,7 +22,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void register_Success() throws DataAccessException {
+    public void registerSuccess() throws DataAccessException {
         User user = new User("testuser", "password123", "test@example.com");
         AuthToken auth = userService.register(user);
 
@@ -38,7 +38,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void register_UserAlreadyExists() throws DataAccessException {
+    public void registerUserAlreadyExists() throws DataAccessException {
         User user = new User("testuser", "password123", "test@example.com");
         userService.register(user);
 
@@ -49,7 +49,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void login_Success() throws DataAccessException {
+    public void loginSuccess() throws DataAccessException {
         User user = new User("testuser", "password123", "test@example.com");
         userService.register(user);
 
@@ -63,7 +63,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void login_InvalidCredentials() throws DataAccessException {
+    public void loginInvalidCredentials() throws DataAccessException {
         User user = new User("testuser", "password123", "test@example.com");
         userService.register(user);
 
@@ -79,7 +79,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void logout_Success() throws DataAccessException {
+    public void logoutSuccess() throws DataAccessException {
         User user = new User("testuser", "password123", "test@example.com");
         AuthToken auth = userService.register(user);
 
@@ -90,7 +90,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void logout_InvalidToken() throws DataAccessException {
+    public void logoutInvalidToken() throws DataAccessException {
         String invalidToken = "invalidtoken123";
 
         Exception exception = assertThrows(DataAccessException.class, () -> {
@@ -100,7 +100,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void clearData_Success() throws DataAccessException {
+    public void clearDataSuccess() throws DataAccessException {
         User user1 = new User("user1", "pass1", "user1@example.com");
         User user2 = new User("user2", "pass2", "user2@example.com");
         userService.register(user1);

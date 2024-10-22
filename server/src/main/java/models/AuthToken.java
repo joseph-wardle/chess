@@ -32,8 +32,12 @@ public class AuthToken {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         AuthToken authToken = (AuthToken) o;
         return Objects.equals(token, authToken.token) && Objects.equals(username, authToken.username);
     }

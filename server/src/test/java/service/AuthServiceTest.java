@@ -23,7 +23,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void authenticate_Success() throws DataAccessException {
+    public void authenticateSuccess() throws DataAccessException {
         User user = new User("testuser", "password123", "test@example.com");
         AuthToken auth = userService.register(user);
 
@@ -33,7 +33,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void authenticate_InvalidToken() throws DataAccessException {
+    public void authenticateInvalidToken() throws DataAccessException {
         String invalidToken = "invalidtoken123";
 
         Exception exception = assertThrows(InvalidAuthTokenException.class, () -> {
