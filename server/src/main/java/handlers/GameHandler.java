@@ -31,6 +31,7 @@ public class GameHandler {
             List<Game> games = gameService.listGames();
             res.status(200);
             res.type("application/json");
+            System.out.println(games);
             return gson.toJson(Map.of("games", games));
         } catch (Exception e) {
             res.status(401);
@@ -50,7 +51,7 @@ public class GameHandler {
             Game game = gameService.createGame(gameName);
             res.status(200);
             res.type("application/json");
-            return gson.toJson(Map.of("gameID", game.getGameId(), "gameName", game.getGameName()));
+            return gson.toJson(Map.of("gameID", game.getGameID(), "gameName", game.getGameName()));
         } catch (InvalidAuthTokenException e) {
             res.status(401);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
@@ -76,11 +77,11 @@ public class GameHandler {
             res.type("application/json");
             Game game = gameService.getGame(gameId);
             return gson.toJson(Map.of(
-                    "gameId", game.getGameId(),
+                    "gameId", game.getGameID(),
                     "status", "joined",
                     "players", Map.of(
-                            "white", game.getWhiteUsername(),
-                            "black", game.getBlackUsername()
+                            "white", game.getWhiteUsername() != null ? game.getWhiteUsername() : "null",
+                            "black", game.getBlackUsername() != null ? game.getBlackUsername() : "null"
                     )
             ));
         } catch (TeamColorAlreadyTakenException e) {
@@ -95,6 +96,4 @@ public class GameHandler {
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         }
     }
-
-    // Additional handlers as needed
 }

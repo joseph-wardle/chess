@@ -3,20 +3,20 @@ package models;
 import java.util.Objects;
 
 public class Game {
-    private int gameId;
+    private int gameID;
     private String gameName;
     private String whiteUsername;
     private String blackUsername;
 
-    public Game(int gameId, String gameName, String whiteUsername, String blackUsername) {
-        this.gameId = gameId;
+    public Game(int gameID, String gameName, String whiteUsername, String blackUsername) {
+        this.gameID = gameID;
         this.gameName = gameName;
         this.whiteUsername = whiteUsername;
         this.blackUsername = blackUsername;
     }
 
-    public int getGameId() {
-        return gameId;
+    public int getGameID() {
+        return gameID;
     }
 
     public String getGameName() {
@@ -31,8 +31,8 @@ public class Game {
         return blackUsername;
     }
 
-    public void setGameId(int gameId) {
-        this.gameId = gameId;
+    public void setGameID(int gameID) {
+        this.gameID = gameID;
     }
 
     public void setGameName(String gameName) {
@@ -52,18 +52,18 @@ public class Game {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Game game = (Game) o;
-        return gameId == game.gameId && Objects.equals(gameName, game.gameName) && Objects.equals(whiteUsername, game.whiteUsername) && Objects.equals(blackUsername, game.blackUsername);
+        return gameID == game.gameID && Objects.equals(gameName, game.gameName) && Objects.equals(whiteUsername, game.whiteUsername) && Objects.equals(blackUsername, game.blackUsername);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(gameId, gameName, whiteUsername, blackUsername);
+        return Objects.hash(gameID, gameName, whiteUsername, blackUsername);
     }
 
     @Override
     public String toString() {
         return "Game{" +
-                "gameId=" + gameId +
+                "gameID=" + gameID +
                 ", gameName='" + gameName + '\'' +
                 ", whiteUsername='" + whiteUsername + '\'' +
                 ", blackUsername='" + blackUsername + '\'' +

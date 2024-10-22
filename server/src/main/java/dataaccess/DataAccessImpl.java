@@ -55,16 +55,16 @@ public class DataAccessImpl implements DataAccess {
 
     @Override
     public void createGame(Game game) throws DataAccessException {
-        game.setGameId(gameIdCounter++);
-        games.put(game.getGameId(), game);
+        game.setGameID(gameIdCounter++);
+        games.put(game.getGameID(), game);
     }
 
     @Override
     public void updateGame(Game game) throws DataAccessException {
-        if (!games.containsKey(game.getGameId())) {
+        if (!games.containsKey(game.getGameID())) {
             throw new DataAccessException("Game not found.");
         }
-        games.put(game.getGameId(), game);
+        games.put(game.getGameID(), game);
     }
 
     @Override
