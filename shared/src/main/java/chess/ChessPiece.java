@@ -204,7 +204,6 @@ public class ChessPiece {
                         break; // Blocked by own piece
                     }
                 } catch (IllegalArgumentException e) {
-                    // Position is off the board, stop in this direction
                     break;
                 }
             }
@@ -335,8 +334,12 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ChessPiece that = (ChessPiece) o;
         return color == that.color && type == that.type;
     }

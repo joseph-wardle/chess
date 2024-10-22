@@ -58,19 +58,6 @@ public class ChessBoard {
         board.remove(position);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessBoard that = (ChessBoard) o;
-        return Objects.equals(board, that.board);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(board);
-    }
-
     /**
      * Resets the chessboard to the default starting position.
      */
@@ -184,5 +171,22 @@ public class ChessBoard {
             }
             System.out.println("|");
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.equals(board, that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(board);
     }
 }
