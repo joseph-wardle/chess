@@ -320,20 +320,6 @@ public class ChessPiece {
         return promotionMoves;
     }
 
-    /**
-     * @return The symbol representing this chess piece.
-     */
-    public char getSymbol() {
-        return switch (type) {
-            case KING -> (color == ChessGame.TeamColor.WHITE) ? 'K' : 'k';
-            case QUEEN -> (color == ChessGame.TeamColor.WHITE) ? 'Q' : 'q';
-            case ROOK -> (color == ChessGame.TeamColor.WHITE) ? 'R' : 'r';
-            case BISHOP -> (color == ChessGame.TeamColor.WHITE) ? 'B' : 'b';
-            case KNIGHT -> (color == ChessGame.TeamColor.WHITE) ? 'N' : 'n';
-            case PAWN -> (color == ChessGame.TeamColor.WHITE) ? 'P' : 'p';
-        };
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
