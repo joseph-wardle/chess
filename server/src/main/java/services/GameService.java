@@ -16,6 +16,9 @@ public class GameService {
     }
 
     public Game createGame(String gameName) throws DataAccessException {
+        if (gameName == null || gameName.isEmpty()) {
+            throw new DataAccessException("Game name is required.");
+        }
         Game game = new Game(-1, gameName, null, null);
         dataAccess.createGame(game);
         return game;
