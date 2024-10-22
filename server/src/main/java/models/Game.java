@@ -2,6 +2,10 @@ package models;
 
 import java.util.Objects;
 
+
+/**
+ * Represents a game with associated players.
+ */
 public class Game {
     private int gameID;
     private String gameName;

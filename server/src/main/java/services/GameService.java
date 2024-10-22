@@ -7,13 +7,23 @@ import models.Game;
 
 import java.util.List;
 
+/**
+ * Service for handling game-related operations.
+ */
 public class GameService {
-    private DataAccess dataAccess;
+    private final DataAccess dataAccess;
 
     public GameService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
 
+    /**
+     * Creates a new game with the specified name.
+     *
+     * @param gameName The name of the game.
+     * @return The created Game object.
+     * @throws DataAccessException If an error occurs during game creation.
+     */
     public Game createGame(String gameName) throws DataAccessException {
         if (gameName == null || gameName.isEmpty()) {
             throw new DataAccessException("Game name is required.");
@@ -29,7 +39,7 @@ public class GameService {
      * @param gameId      The ID of the game to join.
      * @param username    The username of the player joining the game.
      * @param playerColor The desired team color ("white" or "black").
-     * @throws DataAccessException if the game is not found, the color is invalid, or the color is already taken.
+     * @throws DataAccessException If the game is not found, the color is invalid, or the color is already taken.
      */
     public void joinGame(int gameId, String username, String playerColor) throws DataAccessException {
         Game game = dataAccess.getGame(gameId);
@@ -63,6 +73,12 @@ public class GameService {
         dataAccess.updateGame(game);
     }
 
+    /**
+     * Lists all available games.
+     *
+     * @return A list of all Game objects.
+     * @throws DataAccessException If an error occurs while fetching games.
+     */
     public List<Game> listGames() throws DataAccessException {
         return dataAccess.getAllGames();
     }
@@ -72,7 +88,7 @@ public class GameService {
      *
      * @param gameId The ID of the game.
      * @return The Game object.
-     * @throws DataAccessException if the game is not found.
+     * @throws DataAccessException If the game is not found.
      */
     public Game getGame(int gameId) throws DataAccessException {
         Game game = dataAccess.getGame(gameId);

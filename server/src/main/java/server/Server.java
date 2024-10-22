@@ -13,15 +13,18 @@ import spark.Spark;
 
 import java.util.Map;
 
+/**
+ * Main server class that initializes and runs the Spark server.
+ */
 public class Server {
-    private DataAccess dataAccess;
-    private UserService userService;
-    private GameService gameService;
-    private AuthService authService;
-    private UserHandler userHandler;
-    private GameHandler gameHandler;
-    private ErrorHandler errorHandler;
-    private Gson gson = new Gson();
+    private final DataAccess dataAccess;
+    private final  UserService userService;
+    private final  GameService gameService;
+    private final  AuthService authService;
+    private final  UserHandler userHandler;
+    private final  GameHandler gameHandler;
+    private final  ErrorHandler errorHandler;
+    private final  Gson gson = new Gson();
 
     public Server() {
         this.dataAccess = new DataAccessImpl();
@@ -36,26 +39,20 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        // Serve static files from "public" directory
         Spark.staticFiles.location("web");
 
-        // Register exception handler
         Spark.exception(Exception.class, errorHandler::handleException);
 
-        // Register not found handler
         Spark.notFound(errorHandler::handleNotFound);
 
-        // User endpoints
-        Spark.post("/user", userHandler::register); // Registration
-        Spark.post("/session", userHandler::login); // Login
-        Spark.delete("/session", userHandler::logout); // Logout
+        Spark.post("/user", userHandler::register);
+        Spark.post("/session", userHandler::login);
+        Spark.delete("/session", userHandler::logout);
 
-        // Game endpoints
-        Spark.get("/game", gameHandler::listGames); // List Games
-        Spark.post("/game", gameHandler::createGame); // Create Game
-        Spark.put("/game", gameHandler::joinGame); // Join Game
+        Spark.get("/game", gameHandler::listGames);
+        Spark.post("/game", gameHandler::createGame);
+        Spark.put("/game", gameHandler::joinGame);
 
-        // Clear application data
         Spark.delete("/db", (req, res) -> {
             try {
                 userService.clearData();
@@ -68,7 +65,6 @@ public class Server {
             }
         });
 
-        // Initialize Spark
         Spark.init();
         Spark.awaitInitialization();
         return Spark.port();

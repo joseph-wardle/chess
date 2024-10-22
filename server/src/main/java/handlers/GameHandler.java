@@ -14,16 +14,22 @@ import spark.Response;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Handles game-related HTTP requests.
+ */
 public class GameHandler {
-    private GameService gameService;
-    private AuthService authService;
-    private Gson gson = new Gson();
+    private final GameService gameService;
+    private final AuthService authService;
+    private final Gson gson = new Gson();
 
     public GameHandler(GameService gameService, AuthService authService) {
         this.gameService = gameService;
         this.authService = authService;
     }
 
+    /**
+     * Lists all available games.
+     */
     public Object listGames(Request req, Response res) {
         try {
             String authToken = req.headers("Authorization");
@@ -39,6 +45,9 @@ public class GameHandler {
         }
     }
 
+    /**
+     * Creates a new game.
+     */
     public Object createGame(Request req, Response res) {
         try {
             String authToken = req.headers("Authorization");
@@ -57,11 +66,14 @@ public class GameHandler {
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         }
         catch (Exception e) {
-            res.status(400); // Bad Request
+            res.status(400);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         }
     }
 
+    /**
+     * Allows a user to join an existing game.
+     */
     public Object joinGame(Request req, Response res) {
         try {
             String authToken = req.headers("Authorization");
@@ -85,14 +97,14 @@ public class GameHandler {
                     )
             ));
         } catch (TeamColorAlreadyTakenException e) {
-            res.status(403); // Forbidden
+            res.status(403);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         } catch (InvalidAuthTokenException e) {
             res.status(401);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         }
         catch (Exception e) {
-            res.status(400); // Bad Request
+            res.status(400);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         }
     }

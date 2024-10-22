@@ -6,12 +6,17 @@ import models.AuthToken;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+/**
+ * Implementation of DataAccess interface.
+ */
 public class DataAccessImpl implements DataAccess {
-    private Map<String, User> users = new ConcurrentHashMap<>();
-    private Map<String, AuthToken> authTokens = new ConcurrentHashMap<>();
-    private Map<Integer, Game> games = new ConcurrentHashMap<>();
+    private final Map<String, User> users = new ConcurrentHashMap<>();
+    private final Map<String, AuthToken> authTokens = new ConcurrentHashMap<>();
+    private final Map<Integer, Game> games = new ConcurrentHashMap<>();
     private int gameIdCounter = 1;
 
+    // User operations
     @Override
     public User getUser(String username) throws DataAccessException {
         return users.get(username);
@@ -28,6 +33,7 @@ public class DataAccessImpl implements DataAccess {
         users.put(user.getUsername(), user);
     }
 
+    // AuthToken operations
     @Override
     public AuthToken getAuth(String token) throws DataAccessException {
         return authTokens.get(token);
@@ -48,6 +54,7 @@ public class DataAccessImpl implements DataAccess {
         authTokens.clear();
     }
 
+    // Game operations
     @Override
     public Game getGame(int gameId) throws DataAccessException {
         return games.get(gameId);

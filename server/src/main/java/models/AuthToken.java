@@ -2,6 +2,9 @@ package models;
 
 import java.util.Objects;
 
+/**
+ * Represents an authentication token associated with a user.
+ */
 public class AuthToken {
     private String token;
     private String username;

@@ -1,10 +1,12 @@
 package models;
 
+/**
+ * Represents a request to join a game.
+ */
 public class JoinGameRequest {
     private String playerColor;
     private int gameID;
 
-    // Getters and setters
     public String getPlayerColor() {
         return playerColor;
     }
