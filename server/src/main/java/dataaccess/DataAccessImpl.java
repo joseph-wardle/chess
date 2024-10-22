@@ -19,8 +19,11 @@ public class DataAccessImpl implements DataAccess {
 
     @Override
     public void createUser(User user) throws DataAccessException {
+        if (user.getUsername() == null || user.getUsername().isEmpty()) {
+            throw new DataAccessException("Username cannot be null or empty.");
+        }
         if (users.containsKey(user.getUsername())) {
-            throw new DataAccessException("User already exists.");
+            throw new UserAlreadyExistsException("User already exists.");
         }
         users.put(user.getUsername(), user);
     }

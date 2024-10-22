@@ -18,7 +18,7 @@ public class UserService {
         if (user.getUsername() == null || user.getPassword() == null || user.getEmail() == null) {
             throw new DataAccessException("Missing required fields.");
         }
-        dataAccess.createUser(user);
+        dataAccess.createUser(user); // May throw UserAlreadyExistsException
         // Create AuthToken
         String token = UUID.randomUUID().toString();
         AuthToken auth = new AuthToken(token, user.getUsername());

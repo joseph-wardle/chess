@@ -37,7 +37,7 @@ public class Server {
         Spark.port(desiredPort);
 
         // Serve static files from "public" directory
-        Spark.staticFiles.location("public");
+        Spark.staticFiles.location("web");
 
         // Register exception handler
         Spark.exception(Exception.class, errorHandler::handleException);

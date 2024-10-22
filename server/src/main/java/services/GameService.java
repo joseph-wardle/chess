@@ -46,4 +46,8 @@ public class GameService {
     public List<Game> listGames() throws DataAccessException {
         return dataAccess.getAllGames();
     }
+
+    public Game getGame(int gameId) throws DataAccessException {
+        return dataAccess.getGame(gameId);
+    }
 }

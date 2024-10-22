@@ -1,5 +1,6 @@
 package handlers;
 
+import dataaccess.UserAlreadyExistsException;
 import services.UserService;
 import models.User;
 import models.AuthToken;
@@ -24,8 +25,11 @@ public class UserHandler {
             res.status(200);
             res.type("application/json");
             return gson.toJson(Map.of("username", user.getUsername(), "authToken", auth.getToken()));
+        } catch (UserAlreadyExistsException e) {
+            res.status(403); // Forbidden
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         } catch (Exception e) {
-            res.status(400);
+            res.status(400); // Bad Request
             return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
         }
     }
