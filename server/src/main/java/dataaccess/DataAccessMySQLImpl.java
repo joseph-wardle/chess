@@ -240,7 +240,13 @@ public class DataAccessMySQLImpl implements DataAccess {
 
     @Override
     public void deleteAllGames() throws DataAccessException {
-
+        String sql = "DELETE FROM Game";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            throw new DataAccessException("Error deleting all games: " + e.getMessage());
+        }
     }
 
     @Override
