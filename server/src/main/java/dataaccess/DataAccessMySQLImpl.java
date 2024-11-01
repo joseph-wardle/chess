@@ -23,41 +23,41 @@ public class DataAccessMySQLImpl implements DataAccess {
         try (var conn = DatabaseManager.getConnection()) {
             // Create User table
             String createUserTable = """
-                    CREATE TABLE IF NOT EXISTS User (
-                        username VARCHAR(255) PRIMARY KEY,
-                        password VARCHAR(255) NOT NULL,
-                        email VARCHAR(255) NOT NULL
-                    );
-                    """;
+                CREATE TABLE IF NOT EXISTS User (
+                    username VARCHAR(255) PRIMARY KEY,
+                    password VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) NOT NULL
+                );
+                """;
             try (var stmt = conn.createStatement()) {
                 stmt.execute(createUserTable);
             }
 
-            // Create AuthToken table
-            String createAuthTable = """
-                    CREATE TABLE IF NOT EXISTS AuthToken (
-                        token VARCHAR(255) PRIMARY KEY,
-                        username VARCHAR(255),
-                        FOREIGN KEY (username) REFERENCES User(username)
-                    );
-                    """;
-            try (var stmt = conn.createStatement()) {
-                stmt.execute(createAuthTable);
-            }
-
-            // Create Game table
+            // Create Game table with ON DELETE SET NULL
             String createGameTable = """
-                    CREATE TABLE IF NOT EXISTS Game (
-                        gameID INT AUTO_INCREMENT PRIMARY KEY,
-                        gameName VARCHAR(255) NOT NULL,
-                        whiteUsername VARCHAR(255),
-                        blackUsername VARCHAR(255),
-                        FOREIGN KEY (whiteUsername) REFERENCES User(username),
-                        FOREIGN KEY (blackUsername) REFERENCES User(username)
-                    );
-                    """;
+                CREATE TABLE IF NOT EXISTS Game (
+                    gameID INT AUTO_INCREMENT PRIMARY KEY,
+                    gameName VARCHAR(255) NOT NULL,
+                    whiteUsername VARCHAR(255),
+                    blackUsername VARCHAR(255),
+                    FOREIGN KEY (whiteUsername) REFERENCES User(username) ON DELETE SET NULL,
+                    FOREIGN KEY (blackUsername) REFERENCES User(username) ON DELETE SET NULL
+                );
+                """;
             try (var stmt = conn.createStatement()) {
                 stmt.execute(createGameTable);
+            }
+
+            // Create AuthToken table
+            String createAuthTable = """
+                CREATE TABLE IF NOT EXISTS AuthToken (
+                    token VARCHAR(255) PRIMARY KEY,
+                    username VARCHAR(255),
+                    FOREIGN KEY (username) REFERENCES User(username) ON DELETE CASCADE
+                );
+                """;
+            try (var stmt = conn.createStatement()) {
+                stmt.execute(createAuthTable);
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error creating tables: " + e.getMessage());

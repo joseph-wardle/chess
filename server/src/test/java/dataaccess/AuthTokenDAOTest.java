@@ -13,6 +13,7 @@ public class AuthTokenDAOTest {
     public void setUp() throws DataAccessException {
         dataAccess = new DataAccessMySQLImpl();
         dataAccess.deleteAllAuthTokens();
+        dataAccess.deleteAllGames();
         dataAccess.deleteAllUsers();
         // Create a user for testing
         User user = new User("testuser", "password123", "test@example.com");
