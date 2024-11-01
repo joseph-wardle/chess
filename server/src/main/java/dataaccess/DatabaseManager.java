@@ -10,7 +10,7 @@ public class DatabaseManager {
     private static final String CONNECTION_URL;
 
     /*
-     * Load the database information from the db.properties file.
+     * Load the database information for the db.properties file.
      */
     static {
         try {
@@ -44,15 +44,14 @@ public class DatabaseManager {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error creating database: " + e.getMessage());
+            throw new DataAccessException(e.getMessage());
         }
     }
 
     /**
      * Create a connection to the database and sets the catalog based upon the
-     * properties specified in db.properties.
-     * Connections to the database should be short-lived, and you must close
-     * the connection when you are done with it.
+     * properties specified in db.properties. Connections to the database should
+     * be short-lived, and you must close the connection when you are done with it.
      * The easiest way to do that is with a try-with-resource block.
      * <br/>
      * <code>
@@ -63,10 +62,11 @@ public class DatabaseManager {
      */
     static Connection getConnection() throws DataAccessException {
         try {
-            var conn = DriverManager.getConnection(CONNECTION_URL + "/" + DATABASE_NAME, USER, PASSWORD);
+            var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
+            conn.setCatalog(DATABASE_NAME);
             return conn;
         } catch (SQLException e) {
-            throw new DataAccessException("Error getting connection: " + e.getMessage());
+            throw new DataAccessException(e.getMessage());
         }
     }
 }
