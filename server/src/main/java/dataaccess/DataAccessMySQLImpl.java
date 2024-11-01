@@ -102,6 +102,21 @@ public class DataAccessMySQLImpl implements DataAccess {
 
     @Override
     public AuthToken getAuth(String token) throws DataAccessException {
+        String sql = "SELECT * FROM AuthToken WHERE token = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, token);
+            try (var rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new AuthToken(
+                            rs.getString("token"),
+                            rs.getString("username")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error getting auth token: " + e.getMessage());
+        }
         return null;
     }
 
