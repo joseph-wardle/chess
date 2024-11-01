@@ -8,7 +8,6 @@ import services.GameService;
 import services.AuthService;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessImpl;
-import dataaccess.DataAccessMySQLImpl;
 import com.google.gson.Gson;
 import spark.Spark;
 
@@ -27,8 +26,8 @@ public class Server {
     private final  ErrorHandler errorHandler;
     private final  Gson gson = new Gson();
 
-    public Server() throws Exception {
-        this.dataAccess = new DataAccessMySQLImpl();
+    public Server() {
+        this.dataAccess = new DataAccessImpl();
         this.userService = new UserService(dataAccess);
         this.gameService = new GameService(dataAccess);
         this.authService = new AuthService(dataAccess);
@@ -42,16 +41,9 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        Spark.exception(Exception.class, (e, req, res) -> {
-            Object response = errorHandler.handleException(e, req, res);
-            res.body(response.toString());
-        });
+        Spark.exception(Exception.class, errorHandler::handleException);
 
-        Spark.notFound((req, res) -> {
-            Object response = errorHandler.handleNotFound(req, res);
-            res.body(response.toString());
-            return res.body();
-        });
+        Spark.notFound(errorHandler::handleNotFound);
 
         Spark.post("/user", userHandler::register);
         Spark.post("/session", userHandler::login);

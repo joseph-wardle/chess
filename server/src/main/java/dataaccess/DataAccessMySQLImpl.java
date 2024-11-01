@@ -8,6 +8,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Statement;
 
 public class DataAccessMySQLImpl implements DataAccess {
 
