@@ -11,7 +11,9 @@ public class UserDAOTest {
     @BeforeEach
     public void setUp() throws DataAccessException {
         dataAccess = new DataAccessMySQLImpl();
+        dataAccess.deleteAllGames();
         dataAccess.deleteAllUsers();
+
     }
 
     @Test
