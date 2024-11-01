@@ -14,7 +14,6 @@ import org.mindrot.jbcrypt.BCrypt;
 public class DataAccessMySQLImpl implements DataAccess {
 
     public DataAccessMySQLImpl() throws DataAccessException {
-        // Create database and tables if they don't exist
         DatabaseManager.createDatabase();
         createTablesIfNotExist();
     }

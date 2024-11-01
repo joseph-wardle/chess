@@ -16,7 +16,6 @@ public class GameDAOTest {
         dataAccess = new DataAccessMySQLImpl();
         dataAccess.deleteAllGames();
         dataAccess.deleteAllUsers();
-        // Create users for testing
         User user1 = new User("user1", "pass1", "user1@example.com");
         User user2 = new User("user2", "pass2", "user2@example.com");
         dataAccess.createUser(user1);
@@ -34,9 +33,32 @@ public class GameDAOTest {
     }
 
     @Test
+    public void testCreateGameInvalidData() {
+        Game invalidGame1 = new Game(-1, null, "user1", "user2");
+        Game invalidGame2 = new Game(-1, "Game with Invalid User", "nonexistentUser", "user2");
+
+        assertThrows(DataAccessException.class, () -> dataAccess.createGame(invalidGame1));
+        assertThrows(DataAccessException.class, () -> dataAccess.createGame(invalidGame2));
+    }
+
+    @Test
     public void testGetGameNotFound() throws DataAccessException {
         Game game = dataAccess.getGame(999);
         assertNull(game);
+    }
+
+    @Test
+    public void testGetGameSuccess() throws DataAccessException {
+        Game game = new Game(-1, "Valid Game", "user1", "user2");
+        dataAccess.createGame(game);
+
+        Game retrievedGame = dataAccess.getGame(game.getGameID());
+
+        assertNotNull(retrievedGame);
+        assertEquals(game.getGameID(), retrievedGame.getGameID());
+        assertEquals(game.getGameName(), retrievedGame.getGameName());
+        assertEquals(game.getWhiteUsername(), retrievedGame.getWhiteUsername());
+        assertEquals(game.getBlackUsername(), retrievedGame.getBlackUsername());
     }
 
     @Test

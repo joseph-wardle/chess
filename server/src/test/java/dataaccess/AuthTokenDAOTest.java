@@ -15,7 +15,6 @@ public class AuthTokenDAOTest {
         dataAccess.deleteAllAuthTokens();
         dataAccess.deleteAllGames();
         dataAccess.deleteAllUsers();
-        // Create a user for testing
         User user = new User("testuser", "password123", "test@example.com");
         dataAccess.createUser(user);
     }
@@ -31,9 +30,27 @@ public class AuthTokenDAOTest {
     }
 
     @Test
+    public void testCreateAuthTokenInvalidUser() {
+        AuthToken invalidAuthToken = new AuthToken("token123", "nonexistentuser");
+        assertThrows(DataAccessException.class, () -> dataAccess.createAuth(invalidAuthToken));
+    }
+
+    @Test
     public void testGetAuthTokenNotFound() throws DataAccessException {
         AuthToken authToken = dataAccess.getAuth("nonexistent");
         assertNull(authToken);
+    }
+
+    @Test
+    public void testGetAuthTokenSuccess() throws DataAccessException {
+        AuthToken authToken = new AuthToken("validToken", "testuser");
+        dataAccess.createAuth(authToken);
+
+        AuthToken retrievedAuth = dataAccess.getAuth("validToken");
+
+        assertNotNull(retrievedAuth);
+        assertEquals(authToken.getToken(), retrievedAuth.getToken());
+        assertEquals(authToken.getUsername(), retrievedAuth.getUsername());
     }
 
     @Test

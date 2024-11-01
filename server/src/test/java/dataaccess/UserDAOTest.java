@@ -34,9 +34,27 @@ public class UserDAOTest {
     }
 
     @Test
+    public void testCreateUserInvalidData() {
+        User invalidUser = new User(null, null, null);
+        assertThrows(DataAccessException.class, () -> dataAccess.createUser(invalidUser));
+    }
+
+    @Test
     public void testGetUserNotFound() throws DataAccessException {
         User user = dataAccess.getUser("nonexistent");
         assertNull(user);
+    }
+
+    @Test
+    public void testGetUserSuccess() throws DataAccessException {
+        User user = new User("validUser", "password123", "valid@example.com");
+        dataAccess.createUser(user);
+
+        User retrievedUser = dataAccess.getUser("validUser");
+
+        assertNotNull(retrievedUser);
+        assertEquals(user.getUsername(), retrievedUser.getUsername());
+        assertEquals(user.getEmail(), retrievedUser.getEmail());
     }
 
     @Test
