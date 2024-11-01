@@ -1,25 +1,27 @@
 package dataaccess;
 
-import models.AuthToken;
-import models.Game;
 import models.User;
-import org.mindrot.jbcrypt.BCrypt;
-
-import java.sql.SQLException;
+import models.Game;
+import models.AuthToken;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.Statement;
+import org.mindrot.jbcrypt.BCrypt;
 
+/**
+ * MySQL implementation of the DataAccess interface.
+ */
 public class DataAccessMySQLImpl implements DataAccess {
 
     public DataAccessMySQLImpl() throws DataAccessException {
+        // Create database and tables if they don't exist
         DatabaseManager.createDatabase();
         createTablesIfNotExist();
     }
 
     private void createTablesIfNotExist() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            // Create Users table
+            // Create User table
             String createUserTable = """
                     CREATE TABLE IF NOT EXISTS User (
                         username VARCHAR(255) PRIMARY KEY,
@@ -62,6 +64,7 @@ public class DataAccessMySQLImpl implements DataAccess {
         }
     }
 
+    // User operations
     @Override
     public User getUser(String username) throws DataAccessException {
         String sql = "SELECT * FROM User WHERE username = ?";
@@ -92,7 +95,7 @@ public class DataAccessMySQLImpl implements DataAccess {
         try (var conn = DatabaseManager.getConnection();
              var stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getUsername());
-
+            // Hash the password before storing
             String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
             stmt.setString(2, hashedPassword);
             stmt.setString(3, user.getEmail());
@@ -102,6 +105,7 @@ public class DataAccessMySQLImpl implements DataAccess {
         }
     }
 
+    // AuthToken operations
     @Override
     public AuthToken getAuth(String token) throws DataAccessException {
         String sql = "SELECT * FROM AuthToken WHERE token = ?";
@@ -158,6 +162,7 @@ public class DataAccessMySQLImpl implements DataAccess {
         }
     }
 
+    // Game operations
     @Override
     public Game getGame(int gameId) throws DataAccessException {
         String sql = "SELECT * FROM Game WHERE gameID = ?";

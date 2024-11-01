@@ -1,5 +1,7 @@
 package server;
 
+import dataaccess.DataAccessException;
+import dataaccess.DataAccessMySQLImpl;
 import handlers.UserHandler;
 import handlers.GameHandler;
 import handlers.ErrorHandler;
@@ -18,16 +20,20 @@ import java.util.Map;
  */
 public class Server {
     private final DataAccess dataAccess;
-    private final  UserService userService;
-    private final  GameService gameService;
-    private final  AuthService authService;
-    private final  UserHandler userHandler;
-    private final  GameHandler gameHandler;
-    private final  ErrorHandler errorHandler;
-    private final  Gson gson = new Gson();
+    private final UserService userService;
+    private final GameService gameService;
+    private final AuthService authService;
+    private final UserHandler userHandler;
+    private final GameHandler gameHandler;
+    private final ErrorHandler errorHandler;
+    private final Gson gson = new Gson();
 
     public Server() {
-        this.dataAccess = new DataAccessImpl();
+        try {
+            this.dataAccess = new DataAccessMySQLImpl();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to initialize DataAccess layer: " + e.getMessage(), e);
+        }
         this.userService = new UserService(dataAccess);
         this.gameService = new GameService(dataAccess);
         this.authService = new AuthService(dataAccess);
