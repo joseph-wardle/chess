@@ -180,7 +180,22 @@ public class DataAccessMySQLImpl implements DataAccess {
 
     @Override
     public void createGame(Game game) throws DataAccessException {
+        String sql = "INSERT INTO Game (gameName, whiteUsername, blackUsername) VALUES (?, ?, ?)";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, game.getGameName());
+            stmt.setString(2, game.getWhiteUsername());
+            stmt.setString(3, game.getBlackUsername());
+            stmt.executeUpdate();
 
+            try (var rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    game.setGameID(rs.getInt(1));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error creating game: " + e.getMessage());
+        }
     }
 
     @Override
