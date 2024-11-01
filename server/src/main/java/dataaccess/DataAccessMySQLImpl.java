@@ -122,7 +122,15 @@ public class DataAccessMySQLImpl implements DataAccess {
 
     @Override
     public void createAuth(AuthToken auth) throws DataAccessException {
-
+        String sql = "INSERT INTO AuthToken (token, username) VALUES (?, ?)";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, auth.getToken());
+            stmt.setString(2, auth.getUsername());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Error creating auth token: " + e.getMessage());
+        }
     }
 
     @Override
