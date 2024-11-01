@@ -6,6 +6,7 @@ import models.User;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DataAccessMySQLImpl implements DataAccess {
@@ -218,7 +219,23 @@ public class DataAccessMySQLImpl implements DataAccess {
 
     @Override
     public List<Game> getAllGames() throws DataAccessException {
-        return List.of();
+        List<Game> games = new ArrayList<>();
+        String sql = "SELECT * FROM Game";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.createStatement();
+             var rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                games.add(new Game(
+                        rs.getInt("gameID"),
+                        rs.getString("gameName"),
+                        rs.getString("whiteUsername"),
+                        rs.getString("blackUsername")
+                ));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error getting all games: " + e.getMessage());
+        }
+        return games;
     }
 
     @Override
