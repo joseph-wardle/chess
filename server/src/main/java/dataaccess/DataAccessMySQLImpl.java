@@ -3,6 +3,7 @@ package dataaccess;
 import models.AuthToken;
 import models.Game;
 import models.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -82,7 +83,21 @@ public class DataAccessMySQLImpl implements DataAccess {
 
     @Override
     public void createUser(User user) throws DataAccessException {
+        if (getUser(user.getUsername()) != null) {
+            throw new UserAlreadyExistsException("User already exists.");
+        }
+        String sql = "INSERT INTO User (username, password, email) VALUES (?, ?, ?)";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, user.getUsername());
 
+            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+            stmt.setString(2, hashedPassword);
+            stmt.setString(3, user.getEmail());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Error creating user: " + e.getMessage());
+        }
     }
 
     @Override
