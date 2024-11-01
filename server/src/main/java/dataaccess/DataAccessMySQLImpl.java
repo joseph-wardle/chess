@@ -251,6 +251,12 @@ public class DataAccessMySQLImpl implements DataAccess {
 
     @Override
     public void deleteAllUsers() throws DataAccessException {
-
+        String sql = "DELETE FROM User";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            throw new DataAccessException("Error deleting all users: " + e.getMessage());
+        }
     }
 }
