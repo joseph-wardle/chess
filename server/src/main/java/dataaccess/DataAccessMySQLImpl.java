@@ -61,6 +61,22 @@ public class DataAccessMySQLImpl implements DataAccess {
 
     @Override
     public User getUser(String username) throws DataAccessException {
+        String sql = "SELECT * FROM User WHERE username = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            try (var rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new User(
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            rs.getString("email")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error getting user: " + e.getMessage());
+        }
         return null;
     }
 
