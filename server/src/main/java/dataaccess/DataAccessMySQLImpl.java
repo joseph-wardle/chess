@@ -135,7 +135,14 @@ public class DataAccessMySQLImpl implements DataAccess {
 
     @Override
     public void deleteAuth(String token) throws DataAccessException {
-
+        String sql = "DELETE FROM AuthToken WHERE token = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, token);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Error deleting auth token: " + e.getMessage());
+        }
     }
 
     @Override
