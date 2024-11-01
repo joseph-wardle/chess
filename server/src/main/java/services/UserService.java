@@ -4,6 +4,7 @@ import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import models.User;
 import models.AuthToken;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -45,7 +46,7 @@ public class UserService {
      */
     public AuthToken login(String username, String password) throws DataAccessException {
         User user = dataAccess.getUser(username);
-        if (user == null || !user.getPassword().equals(password)) {
+        if (user == null || !BCrypt.checkpw(password, user.getPassword())) {
             throw new DataAccessException("Invalid username or password.");
         }
         String token = UUID.randomUUID().toString();
