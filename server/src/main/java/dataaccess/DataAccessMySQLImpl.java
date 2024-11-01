@@ -200,7 +200,20 @@ public class DataAccessMySQLImpl implements DataAccess {
 
     @Override
     public void updateGame(Game game) throws DataAccessException {
-
+        String sql = "UPDATE Game SET gameName = ?, whiteUsername = ?, blackUsername = ? WHERE gameID = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, game.getGameName());
+            stmt.setString(2, game.getWhiteUsername());
+            stmt.setString(3, game.getBlackUsername());
+            stmt.setInt(4, game.getGameID());
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new DataAccessException("Game not found.");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error updating game: " + e.getMessage());
+        }
     }
 
     @Override
