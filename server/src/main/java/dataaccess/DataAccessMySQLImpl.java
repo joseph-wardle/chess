@@ -147,11 +147,34 @@ public class DataAccessMySQLImpl implements DataAccess {
 
     @Override
     public void deleteAllAuthTokens() throws DataAccessException {
-
+        String sql = "DELETE FROM AuthToken";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            throw new DataAccessException("Error deleting all auth tokens: " + e.getMessage());
+        }
     }
 
     @Override
     public Game getGame(int gameId) throws DataAccessException {
+        String sql = "SELECT * FROM Game WHERE gameID = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, gameId);
+            try (var rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Game(
+                            rs.getInt("gameID"),
+                            rs.getString("gameName"),
+                            rs.getString("whiteUsername"),
+                            rs.getString("blackUsername")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error getting game: " + e.getMessage());
+        }
         return null;
     }
 
