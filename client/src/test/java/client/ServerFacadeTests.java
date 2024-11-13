@@ -153,6 +153,7 @@ public class ServerFacadeTests {
         String expectedMessage = "White player is already taken";
         String actualMessage = exception.getMessage();
         assertTrue(actualMessage.contains(expectedMessage));
+
     }
 
 }
