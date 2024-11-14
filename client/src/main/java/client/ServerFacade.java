@@ -192,7 +192,35 @@ public class ServerFacade {
         }
     }
 
-    public void joinGame(int gameId, String playerColor) throws IOException {
+    public void joinGame(int gameID, String playerColor) throws IOException {
+        URL url = new URL(serverURL + "/game");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("PUT");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Authorization", authToken);
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("gameID", gameID);
+        requestBody.put("playerColor", playerColor);
+
+        String jsonRequest = gson.toJson(requestBody);
+
+        OutputStream os = connection.getOutputStream();
+        os.write(jsonRequest.getBytes());
+        os.flush();
+
+        int responseCode = connection.getResponseCode();
+
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            // Successfully joined game
+        } else {
+            InputStream is = connection.getErrorStream();
+            Reader reader = new InputStreamReader(is);
+            Map<String, String> responseMap = gson.fromJson(reader, Map.class);
+            String message = responseMap.get("message");
+            throw new IOException(message);
+        }
     }
 
     public void clearData() throws IOException {
