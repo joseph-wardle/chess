@@ -1,16 +1,21 @@
 package models;
 
-public class Game {
-    private int gameID;
-    private String gameName;
-    private String whiteUsername;
-    private String blackUsername;
+import java.util.Map;
 
-    public Game(int gameID, String gameName, String whiteUsename, String blackUsername) {
+/**
+ * Represents game data returned by the server.
+ */
+public class Game {
+    private final int gameID;
+    private final String gameName;
+    private final String whitePlayer;
+    private final String blackPlayer;
+
+    public Game(int gameID, String gameName, String whitePlayer, String blackPlayer) {
         this.gameID = gameID;
         this.gameName = gameName;
-        this.whiteUsername = whiteUsename;
-        this.blackUsername = blackUsername;
+        this.whitePlayer = whitePlayer;
+        this.blackPlayer = blackPlayer;
     }
 
     public int getGameID() {
@@ -21,11 +26,19 @@ public class Game {
         return gameName;
     }
 
-    public String getWhiteUsername() {
-        return whiteUsername;
+    public String getWhitePlayer() {
+        return whitePlayer;
     }
 
-    public String getBlackUsername() {
-        return blackUsername;
+    public String getBlackPlayer() {
+        return blackPlayer;
+    }
+
+    public static Game fromMap(Map<String, Object> map) {
+        int gameID = ((Double) map.get("gameID")).intValue();
+        String gameName = (String) map.get("gameName");
+        String whitePlayer = (String) map.get("whiteUsername");
+        String blackPlayer = (String) map.get("blackUsername");
+        return new Game(gameID, gameName, whitePlayer, blackPlayer);
     }
 }

@@ -1,19 +1,22 @@
 package models;
 
+/**
+ * Represents authentication data returned by the server.
+ */
 public class AuthToken {
-    private String token;
-    private String username;
+    private final String username;
+    private final String authToken;
 
-    public AuthToken(String token, String username) {
-        this.token = token;
+    public AuthToken(String username, String authToken) {
         this.username = username;
-    }
-
-    public String getToken() {
-        return token;
+        this.authToken = authToken;
     }
 
     public String getUsername() {
         return username;
+    }
+
+    public String getToken() {
+        return authToken;
     }
 }
