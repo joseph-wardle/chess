@@ -4,16 +4,20 @@ import com.google.gson.Gson;
 import models.AuthToken;
 import models.Game;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServerFacade {
-    private final String serverUrl;
+    private final String serverURL;
     private final Gson gson = new Gson();
     private String authToken;
 
-    public ServerFacade(String serverUrl) {
-        this.serverUrl = serverUrl;
+    public ServerFacade(String serverURL) {
+        this.serverURL = serverURL;
     }
 
     public void setAuthToken(String authToken) {
@@ -25,7 +29,41 @@ public class ServerFacade {
     }
 
     public AuthToken register(String username, String password, String email) throws IOException {
-        return null;
+        URL url = new URL(serverURL + "/user");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("username", username);
+        requestBody.put("password", password);
+        requestBody.put("email", email);
+
+        String jsonRequest = gson.toJson(requestBody);
+
+        OutputStream os = connection.getOutputStream();
+        os.write(jsonRequest.getBytes());
+        os.flush();
+
+        int responseCode = connection.getResponseCode();
+
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            InputStream is = connection.getInputStream();
+            Reader reader = new InputStreamReader(is);
+            Map<String, String> responseMap = gson.fromJson(reader, Map.class);
+            String token = responseMap.get("authToken");
+            String user = responseMap.get("username");
+            AuthToken auth = new AuthToken(token, user);
+            setAuthToken(token);
+            return auth;
+        } else {
+            InputStream is = connection.getErrorStream();
+            Reader reader = new InputStreamReader(is);
+            Map<String, String> responseMap = gson.fromJson(reader, Map.class);
+            String message = responseMap.get("message");
+            throw new IOException(message);
+        }
     }
 
     public AuthToken login(String username, String password) throws IOException {
