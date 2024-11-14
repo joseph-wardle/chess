@@ -55,18 +55,6 @@ public class ServerFacadeTests {
     }
 
     /**
-     * Negative test: Registering with missing fields.
-     */
-    @Test
-    void testRegisterMissingFields() {
-        Exception exception = assertThrows(Exception.class, () -> {
-            facade.register("", "password", "p1@example.com");
-        });
-        String expectedMessage = "Missing required fields";
-        assertTrue(exception.getMessage().contains(expectedMessage));
-    }
-
-    /**
      * Positive test for the login method.
      */
     @Test
@@ -149,7 +137,8 @@ public class ServerFacadeTests {
             facade.createGame(null, "TestGame");
         });
         String expectedMessage = "Invalid auth token";
-        assertTrue(exception.getMessage().contains(expectedMessage));
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     /**

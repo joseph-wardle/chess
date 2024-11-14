@@ -5,8 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import models.AuthToken;
-import models.Game;
 
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -15,6 +13,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
+
+import models.AuthToken;
+import models.Game;
 
 /**
  * Handles HTTP communication with the server.
@@ -42,7 +43,7 @@ public class ServerFacade {
             var responseData = gson.fromJson(responseBody, Map.class);
             String authToken = (String) responseData.get("authToken");
             String returnedUsername = (String) responseData.get("username");
-            return new AuthToken(returnedUsername, authToken);
+            return new AuthToken(authToken, returnedUsername);
         } else {
             throw new Exception(parseErrorMessage(response.body()));
         }
@@ -63,7 +64,7 @@ public class ServerFacade {
             var responseData = gson.fromJson(responseBody, Map.class);
             String authToken = (String) responseData.get("authToken");
             String returnedUsername = (String) responseData.get("username");
-            return new AuthToken(returnedUsername, authToken);
+            return new AuthToken(authToken, returnedUsername);
         } else {
             throw new Exception(parseErrorMessage(response.body()));
         }
@@ -83,6 +84,10 @@ public class ServerFacade {
     }
 
     public List<Game> listGames(String authToken) throws Exception {
+        if (authToken == null || authToken.isEmpty()) {
+            throw new Exception("Invalid auth token");
+        }
+
         var client = HttpClient.newHttpClient();
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/game"))
@@ -107,6 +112,10 @@ public class ServerFacade {
     }
 
     public Game createGame(String authToken, String gameName) throws Exception {
+        if (authToken == null || authToken.isEmpty()) {
+            throw new Exception("Invalid auth token");
+        }
+
         var client = HttpClient.newHttpClient();
         var game = Map.of("gameName", gameName);
         var requestBody = gson.toJson(game);
@@ -129,6 +138,10 @@ public class ServerFacade {
     }
 
     public void joinGame(String authToken, int gameID, String playerColor) throws Exception {
+        if (authToken == null || authToken.isEmpty()) {
+            throw new Exception("Invalid auth token");
+        }
+
         var client = HttpClient.newHttpClient();
         var joinRequest = Map.of("gameID", gameID, "playerColor", playerColor);
         var requestBody = gson.toJson(joinRequest);
