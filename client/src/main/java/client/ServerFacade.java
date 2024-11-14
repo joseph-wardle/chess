@@ -124,7 +124,39 @@ public class ServerFacade {
     }
 
     public Game createGame(String gameName) throws IOException {
-        return null;
+        URL url = new URL(serverURL + "/game");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Authorization", authToken);
+
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("gameName", gameName);
+
+        String jsonRequest = gson.toJson(requestBody);
+
+        OutputStream os = connection.getOutputStream();
+        os.write(jsonRequest.getBytes());
+        os.flush();
+
+        int responseCode = connection.getResponseCode();
+
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            InputStream is = connection.getInputStream();
+            Reader reader = new InputStreamReader(is);
+            Map<String, Object> responseMap = gson.fromJson(reader, Map.class);
+            int gameID = ((Number) responseMap.get("gameID")).intValue();
+            String name = (String) responseMap.get("gameName");
+            Game game = new Game(gameID, name, null, null);
+            return game;
+        } else {
+            InputStream is = connection.getErrorStream();
+            Reader reader = new InputStreamReader(is);
+            Map<String, String> responseMap = gson.fromJson(reader, Map.class);
+            String message = responseMap.get("message");
+            throw new IOException(message);
+        }
     }
 
     public List<Game> listGames() throws IOException {
