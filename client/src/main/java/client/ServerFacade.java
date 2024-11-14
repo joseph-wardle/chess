@@ -67,7 +67,40 @@ public class ServerFacade {
     }
 
     public AuthToken login(String username, String password) throws IOException {
-        return null;
+        URL url = new URL(serverURL + "/session");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("username", username);
+        requestBody.put("password", password);
+
+        String jsonRequest = gson.toJson(requestBody);
+
+        OutputStream os = connection.getOutputStream();
+        os.write(jsonRequest.getBytes());
+        os.flush();
+
+        int responseCode = connection.getResponseCode();
+
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            InputStream is = connection.getInputStream();
+            Reader reader = new InputStreamReader(is);
+            Map<String, String> responseMap = gson.fromJson(reader, Map.class);
+            String token = responseMap.get("authToken");
+            String user = responseMap.get("username");
+            AuthToken auth = new AuthToken(token, user);
+            setAuthToken(token);
+            return auth;
+        } else {
+            InputStream is = connection.getErrorStream();
+            Reader reader = new InputStreamReader(is);
+            Map<String, String> responseMap = gson.fromJson(reader, Map.class);
+            String message = responseMap.get("message");
+            throw new IOException(message);
+        }
     }
 
     public void logout() throws IOException {
