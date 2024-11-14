@@ -104,6 +104,23 @@ public class ServerFacade {
     }
 
     public void logout() throws IOException {
+        URL url = new URL(serverURL + "/session");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("DELETE");
+        connection.setRequestProperty("Authorization", authToken);
+
+        int responseCode = connection.getResponseCode();
+
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            // Logout successful
+            authToken = null;
+        } else {
+            InputStream is = connection.getErrorStream();
+            Reader reader = new InputStreamReader(is);
+            Map<String, String> responseMap = gson.fromJson(reader, Map.class);
+            String message = responseMap.get("message");
+            throw new IOException(message);
+        }
     }
 
     public Game createGame(String gameName) throws IOException {
