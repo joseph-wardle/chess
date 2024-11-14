@@ -65,6 +65,7 @@ public class DatabaseManager {
             var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
             conn.setCatalog(DATABASE_NAME);
             conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            conn.setAutoCommit(true);
             return conn;
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());

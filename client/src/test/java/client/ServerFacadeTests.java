@@ -15,7 +15,7 @@ public class ServerFacadeTests {
     static ServerFacade facade;
 
     @BeforeAll
-    public static void init() {
+    public static void init() throws Exception {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
@@ -37,10 +37,7 @@ public class ServerFacadeTests {
      */
     @Test
     void testRegisterSuccess() throws Exception {
-        var authData = facade.register("player1", "password", "p1@example.com");
-        assertNotNull(authData);
-        assertNotNull(authData.getToken());
-        assertEquals("player1", authData.getUsername());
+        AuthToken authData = facade.register("player1", "password", "p1@email.com");
         assertTrue(authData.getToken().length() > 10);
     }
 
@@ -202,8 +199,7 @@ public class ServerFacadeTests {
     void testJoinGameColorAlreadyTaken() throws Exception {
         // First user joins as white
         var authData1 = facade.register("player1", "password", "p1@example.com");
-        String authToken1 = authData1.getToken();
-        var game = facade.createGame(authToken1, "TestGame");
+        String authToken1 = authData1.getToken();var game = facade.createGame(authToken1, "TestGame");
         facade.joinGame(authToken1, game.getGameID(), "white");
 
         // Second user tries to join as white

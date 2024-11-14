@@ -1,9 +1,14 @@
 package client;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import models.AuthToken;
 import models.Game;
 
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -87,9 +92,15 @@ public class ServerFacade {
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
             var responseBody = response.body();
-            var responseData = gson.fromJson(responseBody, Map.class);
-            var gamesList = (List<Map<String, Object>>) responseData.get("games");
-            return gamesList.stream().map(Game::fromMap).toList();
+            // Parse the response body into a JsonObject
+            JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
+            // Get the 'games' array from the JsonObject
+            JsonArray gamesArray = jsonObject.getAsJsonArray("games");
+            // Define the type for List<Game>
+            Type gameListType = new TypeToken<List<Game>>() {}.getType();
+            // Parse the gamesArray into List<Game>
+            List<Game> games = gson.fromJson(gamesArray, gameListType);
+            return games;
         } else {
             throw new Exception(parseErrorMessage(response.body()));
         }
