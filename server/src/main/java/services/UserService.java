@@ -29,6 +29,9 @@ public class UserService {
         if (user.getUsername() == null || user.getPassword() == null || user.getEmail() == null) {
             throw new DataAccessException("Missing required fields.");
         }
+        // Hash the password before storing
+        String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+        user.setPassword(hashedPassword);
         dataAccess.createUser(user);
         String token = UUID.randomUUID().toString();
         AuthToken auth = new AuthToken(token, user.getUsername());

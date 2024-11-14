@@ -94,9 +94,7 @@ public class DataAccessMySQLImpl implements DataAccess {
         try (var conn = DatabaseManager.getConnection();
              var stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getUsername());
-            // Hash the password before storing
-            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
-            stmt.setString(2, hashedPassword);
+            stmt.setString(2, user.getPassword()); // Password is already hashed
             stmt.setString(3, user.getEmail());
             stmt.executeUpdate();
         } catch (SQLException e) {

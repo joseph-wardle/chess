@@ -39,7 +39,7 @@ public class ServerFacade {
             String returnedUsername = (String) responseData.get("username");
             return new AuthToken(returnedUsername, authToken);
         } else {
-            throw new Exception("Registration failed: " + response.body());
+            throw new Exception(parseErrorMessage(response.body()));
         }
     }
 
@@ -60,7 +60,7 @@ public class ServerFacade {
             String returnedUsername = (String) responseData.get("username");
             return new AuthToken(returnedUsername, authToken);
         } else {
-            throw new Exception("Login failed: " + response.body());
+            throw new Exception(parseErrorMessage(response.body()));
         }
     }
 
@@ -73,7 +73,7 @@ public class ServerFacade {
                 .build();
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) {
-            throw new Exception("Logout failed: " + response.body());
+            throw new Exception(parseErrorMessage(response.body()));
         }
     }
 
@@ -91,7 +91,7 @@ public class ServerFacade {
             var gamesList = (List<Map<String, Object>>) responseData.get("games");
             return gamesList.stream().map(Game::fromMap).toList();
         } else {
-            throw new Exception("Failed to list games: " + response.body());
+            throw new Exception(parseErrorMessage(response.body()));
         }
     }
 
@@ -113,7 +113,7 @@ public class ServerFacade {
             String returnedGameName = (String) responseData.get("gameName");
             return new Game(gameID, returnedGameName, null, null);
         } else {
-            throw new Exception("Failed to create game: " + response.body());
+            throw new Exception(parseErrorMessage(response.body()));
         }
     }
 
@@ -129,7 +129,31 @@ public class ServerFacade {
                 .build();
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) {
-            throw new Exception("Failed to join game: " + response.body());
+            throw new Exception(parseErrorMessage(response.body()));
         }
     }
+
+    // Method to clear the database between tests
+    public void clearDatabase() throws Exception {
+        var client = HttpClient.newHttpClient();
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + "/db"))
+                .DELETE()
+                .build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            throw new Exception("Failed to clear database: " + response.body());
+        }
+    }
+
+    // Helper method to parse error messages from server responses
+    private String parseErrorMessage(String responseBody) {
+        try {
+            var responseData = gson.fromJson(responseBody, Map.class);
+            return (String) responseData.get("message");
+        } catch (Exception e) {
+            return "An error occurred: " + responseBody;
+        }
+    }
+
 }

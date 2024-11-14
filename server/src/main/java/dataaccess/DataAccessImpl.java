@@ -30,7 +30,7 @@ public class DataAccessImpl implements DataAccess {
         if (users.containsKey(user.getUsername())) {
             throw new UserAlreadyExistsException("User already exists.");
         }
-        users.put(user.getUsername(), user);
+        users.put(user.getUsername(), user); // Password is already hashed
     }
 
     // AuthToken operations
