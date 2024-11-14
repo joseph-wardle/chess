@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class ServerFacade {
     private final String serverURL;
@@ -160,7 +161,35 @@ public class ServerFacade {
     }
 
     public List<Game> listGames() throws IOException {
-        return null;
+        URL url = new URL(serverURL + "/game");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Authorization", authToken);
+
+        int responseCode = connection.getResponseCode();
+
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            InputStream is = connection.getInputStream();
+            Reader reader = new InputStreamReader(is);
+            Map<String, Object> responseMap = gson.fromJson(reader, Map.class);
+            List<Map<String, Object>> gamesList = (List<Map<String, Object>>) responseMap.get("games");
+            List<Game> games = new ArrayList<>();
+            for (Map<String, Object> gameMap : gamesList) {
+                int gameID = ((Number) gameMap.get("gameID")).intValue();
+                String gameName = (String) gameMap.get("gameName");
+                String whiteUsername = (String) gameMap.get("whiteUsername");
+                String blackUsername = (String) gameMap.get("blackUsername");
+                Game game = new Game(gameID, gameName, whiteUsername, blackUsername);
+                games.add(game);
+            }
+            return games;
+        } else {
+            InputStream is = connection.getErrorStream();
+            Reader reader = new InputStreamReader(is);
+            Map<String, String> responseMap = gson.fromJson(reader, Map.class);
+            String message = responseMap.get("message");
+            throw new IOException(message);
+        }
     }
 
     public void joinGame(int gameId, String playerColor) throws IOException {
