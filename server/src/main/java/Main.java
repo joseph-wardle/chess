@@ -1,3 +1,5 @@
+package server;
+
 import server.Server;
 
 public class Main {
