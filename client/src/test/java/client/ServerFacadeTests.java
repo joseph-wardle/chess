@@ -1,6 +1,6 @@
 package client;
 
-import models.AuthTokenClientModel;
+import models.AuthToken;
 import org.junit.jupiter.api.*;
 import server.Server;
 import models.Game;
@@ -37,7 +37,7 @@ public class ServerFacadeTests {
      */
     @Test
     void testRegisterSuccess() throws Exception {
-        AuthTokenClientModel authData = facade.register("player1", "password", "p1@email.com");
+        AuthToken authData = facade.register("player1", "password", "p1@email.com");
         assertTrue(authData.getToken().length() > 10);
     }
 
