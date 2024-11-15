@@ -54,33 +54,4 @@ public class Game {
     public void setBlackUsername(String blackUsername) {
         this.blackUsername = blackUsername;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Game game = (Game) o;
-        return gameID == game.gameID && Objects.equals(gameName, game.gameName)
-                && Objects.equals(whiteUsername, game.whiteUsername)
-                && Objects.equals(blackUsername, game.blackUsername);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(gameID, gameName, whiteUsername, blackUsername);
-    }
-
-    @Override
-    public String toString() {
-        return "Game{" +
-                "gameID=" + gameID +
-                ", gameName='" + gameName + '\'' +
-                ", whiteUsername='" + whiteUsername + '\'' +
-                ", blackUsername='" + blackUsername + '\'' +
-                '}';
-    }
 }
