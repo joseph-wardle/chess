@@ -4,7 +4,7 @@ import java.util.Objects;
 
 
 /**
- * Represents a game with associated players.
+ * Represents a game with associated players, but for the client! Yay!
  */
 public class Game {
     private int gameID;
@@ -13,25 +13,29 @@ public class Game {
     private String blackUsername;
 
     public Game(int gameID, String gameName, String whiteUsername, String blackUsername) {
-        this.gameID = gameID;
-        this.gameName = gameName;
-        this.whiteUsername = whiteUsername;
-        this.blackUsername = blackUsername;
+        this.gameID = gameID; // This is the game ID
+        this.gameName = gameName; // This is the game name
+        this.whiteUsername = whiteUsername; // this is the username of the white player
+        this.blackUsername = blackUsername; // this is the username of the black player
     }
 
     public int getGameID() {
+        // return the game ID
         return gameID;
     }
 
     public String getGameName() {
+        // return the game name
         return gameName;
     }
 
     public String getWhiteUsername() {
+        // return the white player's username
         return whiteUsername;
     }
 
     public String getBlackUsername() {
+        // return the black player's username
         return blackUsername;
     }
 
