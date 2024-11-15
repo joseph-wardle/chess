@@ -104,6 +104,7 @@ public class Main {
                     System.out.println("Usage: join <GAME_NUMBER> [WHITE|BLACK]");
                 } else {
                     joinGame(tokens[1], tokens[2]);
+                    // Draw the chessboard from both perspectives
                     drawChessBoard(ChessGame.TeamColor.WHITE);
                     drawChessBoard(ChessGame.TeamColor.BLACK);
                 }
@@ -113,6 +114,7 @@ public class Main {
                     System.out.println("Usage: observe <GAME_NUMBER>");
                 } else {
                     observeGame(tokens[1]);
+                    // Draw the chessboard from both perspectives
                     drawChessBoard(ChessGame.TeamColor.WHITE);
                     drawChessBoard(ChessGame.TeamColor.BLACK);
                 }
@@ -164,7 +166,8 @@ public class Main {
 
     private static void createGame(String gameName) throws Exception {
         Game game = serverFacade.createGame(authToken.getToken(), gameName);
-        System.out.println("Created game: " + game.getGameName() + " (ID: " + game.getGameID() + ")");
+        // Do not display Game ID to the user
+        System.out.println("Created game: " + game.getGameName());
     }
 
     private static void listGames() throws Exception {
@@ -200,6 +203,7 @@ public class Main {
         System.out.println("Observing game: " + game.getGameName());
     }
 
+    // Modified drawChessBoard method to accept a perspective parameter
     private static void drawChessBoard(ChessGame.TeamColor perspective) {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
@@ -226,6 +230,8 @@ public class Main {
             }
             System.out.println(" " + row);
         }
+
+        // Print column labels based on perspective
         System.out.print("   ");
         for (int col = 1; col <= 8; col++) {
             int displayCol = isWhitePerspective ? col : 9 - col;
