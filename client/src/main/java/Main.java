@@ -1,6 +1,6 @@
 import chess.*;
 import client.ServerFacade;
-import models.AuthToken;
+import models.AuthTokenClientModel;
 import models.Game;
 import ui.EscapeSequences;
 
@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class Main {
     private static ServerFacade serverFacade;
     private static Scanner scanner;
-    private static AuthToken authToken;
+    private static AuthTokenClientModel authToken;
     private static Map<Integer, Game> gameMap = new HashMap<>();
 
     public static void main(String[] args) {

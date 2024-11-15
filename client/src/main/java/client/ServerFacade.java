@@ -14,7 +14,7 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 
-import models.AuthToken;
+import models.AuthTokenClientModel;
 import models.Game;
 
 /**
@@ -28,7 +28,7 @@ public class ServerFacade {
         this.baseUrl = "http://localhost:" + port;
     }
 
-    public AuthToken register(String username, String password, String email) throws Exception {
+    public AuthTokenClientModel register(String username, String password, String email) throws Exception {
         var client = HttpClient.newHttpClient();
         var user = Map.of("username", username, "password", password, "email", email);
         var requestBody = gson.toJson(user);
@@ -38,18 +38,22 @@ public class ServerFacade {
                 .header("Content-Type", "application/json")
                 .build();
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        return getAuthToken(response);
+    }
+
+    private AuthTokenClientModel getAuthToken(HttpResponse<String> response) throws Exception {
         if (response.statusCode() == 200) {
             var responseBody = response.body();
             var responseData = gson.fromJson(responseBody, Map.class);
             String authToken = (String) responseData.get("authToken");
             String returnedUsername = (String) responseData.get("username");
-            return new AuthToken(authToken, returnedUsername);
+            return new AuthTokenClientModel(authToken, returnedUsername);
         } else {
             throw new Exception(parseErrorMessage(response.body()));
         }
     }
 
-    public AuthToken login(String username, String password) throws Exception {
+    public AuthTokenClientModel login(String username, String password) throws Exception {
         var client = HttpClient.newHttpClient();
         var user = Map.of("username", username, "password", password);
         var requestBody = gson.toJson(user);
@@ -59,15 +63,7 @@ public class ServerFacade {
                 .header("Content-Type", "application/json")
                 .build();
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() == 200) {
-            var responseBody = response.body();
-            var responseData = gson.fromJson(responseBody, Map.class);
-            String authToken = (String) responseData.get("authToken");
-            String returnedUsername = (String) responseData.get("username");
-            return new AuthToken(authToken, returnedUsername);
-        } else {
-            throw new Exception(parseErrorMessage(response.body()));
-        }
+        return getAuthToken(response);
     }
 
     public void logout(String authToken) throws Exception {

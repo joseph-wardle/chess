@@ -1,15 +1,13 @@
 package models;
 
-import java.util.Objects;
-
 /**
  * Represents an authentication token associated with a user.
  */
-public class AuthToken {
+public class AuthTokenClientModel {
     private String token;
     private String username;
 
-    public AuthToken(String token, String username) {
+    public AuthTokenClientModel(String token, String username) {
         this.token = token;
         this.username = username;
     }
