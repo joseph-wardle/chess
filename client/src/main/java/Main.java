@@ -216,13 +216,22 @@ public class Main {
         int endRow = isWhitePerspective ? 0 : 9;
         int rowStep = isWhitePerspective ? -1 : 1;
 
+        // Print column labels based on perspective
+        System.out.print("   ");
+        for (int col = 1; col <= 8; col++) {
+            int displayCol = isWhitePerspective ? col : 9 - col;
+            String label = columnLabels[displayCol - 1];
+            System.out.print(" " + label + " ");
+        }
+        System.out.println();
+
         for (int row = startRow; row != endRow; row += rowStep) {
             System.out.print(row + " ");
             for (int col = 1; col <= 8; col++) {
                 int displayCol = isWhitePerspective ? col : 9 - col;
                 ChessPosition position = new ChessPosition(row, displayCol);
                 ChessPiece piece = board.getPiece(position);
-                boolean isLightSquare = (row + displayCol) % 2 == 0;
+                boolean isLightSquare = !((row + displayCol) % 2 == 0);
                 String bgColor = isLightSquare ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY
                         : EscapeSequences.SET_BG_COLOR_DARK_GREY;
                 String pieceStr = (piece != null) ? getPieceString(piece) : EscapeSequences.EMPTY;
