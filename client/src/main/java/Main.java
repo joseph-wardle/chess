@@ -53,7 +53,7 @@ public class Main {
     }
 
     enum State {
-        LOGGED_OUT, LOGGED_IN
+        LOGGED_OUT, IN_GAME, LOGGED_IN
     }
 
     private static State handleLoggedOutCommand(State state, String command, String[] tokens) throws Exception {
@@ -312,23 +312,29 @@ public class Main {
             try {
                 switch (command) {
                     case "help":
-                        printGameplayHelp();
+                        // TODO
+                        //printGameplayHelp();
                         break;
                     case "redraw":
-                        drawChessBoard(currentPerspective);
+                        // TODO
+                        //drawChessBoard(currentPerspective);
                         break;
                     case "leave":
+                        // TODO
                         // Send LEAVE command
                         // Transition back to post-login UI
                         state = State.LOGGED_IN;
                         break;
                     case "move":
+                        // TODO
                         // Handle move command
                         break;
                     case "resign":
+                        // TODO
                         // Send RESIGN command
                         break;
                     case "highlight":
+                        // TODO
                         // Handle highlight command
                         break;
                     default:
