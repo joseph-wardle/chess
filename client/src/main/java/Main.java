@@ -1,4 +1,5 @@
 import chess.*;
+import client.GameMessageHandler;
 import client.GameWebSocketClient;
 import client.ServerFacade;
 import models.AuthToken;
@@ -14,7 +15,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class Main {
+public class Main implements GameMessageHandler {
     private static ServerFacade serverFacade;
     private static Scanner scanner;
     private static AuthToken authToken;
@@ -346,16 +347,19 @@ public class Main {
         }
     }
 
+    @Override
     public void handleLoadGame(LoadGameMessage message) {
         chessGame = message.getGame();
         ChessGame.TeamColor currentPerspective = ChessGame.TeamColor.BLACK; // TODO: Make this work
         drawChessBoard(currentPerspective);
     }
 
+    @Override
     public void handleNotification(NotificationMessage message) {
         System.out.println("Notification: " + message.getMessage());
     }
 
+    @Override
     public void handleError(ErrorMessage message) {
         System.err.println("Error: " + message.getErrorMessage());
     }

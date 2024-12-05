@@ -75,7 +75,7 @@ public class Server {
             }
         });
 
-        Spark.webSocket("/connect", GameWebSocket.class);
+        Spark.webSocket("/ws", GameWebSocket.class);
 
         Spark.init();
         Spark.awaitInitialization();
