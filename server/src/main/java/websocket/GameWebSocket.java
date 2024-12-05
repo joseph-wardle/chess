@@ -100,4 +100,13 @@ public class GameWebSocket {
             sendError(session, e.getMessage());
         }
     }
+
+    private void sendError(Session session, String errorMessage) {
+        ErrorMessage error = new ErrorMessage(errorMessage);
+        try {
+            session.getBasicRemote().sendText(gson.toJson(error));
+        } catch (Exception e) {
+            System.err.println("Failed to send error message to session " + session.getId() + ": " + e.getMessage());
+        }
+    }
 }
