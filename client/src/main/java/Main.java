@@ -228,7 +228,11 @@ public class Main implements GameMessageHandler {
 
     // Modified drawChessBoard method to accept a perspective parameter
     private static void drawChessBoard(ChessGame.TeamColor perspective) {
-        ChessBoard board = new ChessBoard();
+        if (chessGame == null) {
+            System.out.println("No game stata avalible.");
+            return;
+        }
+        ChessBoard board = chessGame.getBoard();
         board.resetBoard();
         System.out.println("Chessboard from " + perspective + " perspective:");
         String[] columnLabels = {"a", "b", "c", "d", "e", "f", "g", "h"};
@@ -313,30 +317,44 @@ public class Main implements GameMessageHandler {
             try {
                 switch (command) {
                     case "help":
-                        // TODO
-                        //printGameplayHelp();
+                        printGameplayHelp();
                         break;
                     case "redraw":
-                        // TODO
-                        //drawChessBoard(currentPerspective);
+                        drawChessBoard(currentPerspective);
                         break;
                     case "leave":
-                        // TODO
                         // Send LEAVE command
+                        UserGameCommand leaveCommand = new UserGameCommand(
+                                UserGameCommand.CommandType.LEAVE,
+                                authToken.getToken(),
+                                currentGameID
+                        );
+                        webSocketClient.sendCommand(leaveCommand);
                         // Transition back to post-login UI
                         state = State.LOGGED_IN;
                         break;
                     case "move":
-                        // TODO
-                        // Handle move command
+                        if (tokens.length != 3) {
+                            System.out.println("Usage: move <START_POSITION> <END_POSITION>");
+                        } else {
+                            makeMove(tokens[1], tokens[2]);
+                        }
                         break;
                     case "resign":
-                        // TODO
                         // Send RESIGN command
+                        UserGameCommand resignCommand = new UserGameCommand(
+                                UserGameCommand.CommandType.RESIGN,
+                                authToken.getToken(),
+                                currentGameID
+                        );
+                        webSocketClient.sendCommand(resignCommand);
                         break;
                     case "highlight":
-                        // TODO
-                        // Handle highlight command
+                        if (tokens.length != 2) {
+                            System.out.println("Usage: highlight <POSITION>");
+                        } else {
+                            highlightLegalMoves(tokens[1]);
+                        }
                         break;
                     default:
                         System.out.println("Unknown command. Type 'help' for a list of commands.");
@@ -346,6 +364,35 @@ public class Main implements GameMessageHandler {
             }
         }
     }
+
+    private void makeMove(String startPosStr, String endPosStr) {
+        try {
+            ChessPosition start = parsePosition(startPosStr);
+            ChessPosition end = parsePosition(endPosStr);
+            ChessMove move = new ChessMove(start, end);
+
+            UserGameCommand moveCommand = new UserGameCommand(
+                    UserGameCommand.CommandType.MAKE_MOVE,
+                    authToken.getToken(),
+                    currentGameID,
+                    move
+            );
+            webSocketClient.sendCommand(moveCommand);
+        } catch (Exception e) {
+            System.out.println("Error making move: " + e.getMessage());
+        }
+    }
+
+    private ChessPosition parsePosition(String posStr) throws Exception {
+        if (posStr.length() != 2) {
+            throw new Exception("Invalid position format. Use format like 'e2'.");
+        }
+        char columnChar = posStr.charAt(0);
+        int column = columnChar - 'a' + 1;
+        int row = Character.getNumericValue(posStr.charAt(1));
+        return new ChessPosition(row, column);
+    }
+
 
     @Override
     public void handleLoadGame(LoadGameMessage message) {
