@@ -109,4 +109,19 @@ public class GameWebSocket {
             System.err.println("Failed to send error message to session " + session.getId() + ": " + e.getMessage());
         }
     }
+
+    private void broadcastToGame(int gameId, ServerMessage message, Session excludeSession) {
+        Set<Session> sessions = gameSessions.get(gameId);
+        if (sessions != null) {
+            for (Session s : sessions) {
+                if (!s.equals(excludeSession)) {
+                    try {
+                        s.getBasicRemote().sendText(gson.toJson(message));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
 }
