@@ -13,6 +13,7 @@ public class ChessGame {
 
     private TeamColor currentTeamColor;
     private ChessBoard chessBoard;
+    private boolean gameOver = false;
 
     public ChessGame() {
         currentTeamColor = TeamColor.WHITE;
@@ -105,6 +106,10 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid.
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (gameOver) {
+            throw new InvalidMoveException("Invalid move: The game is over.");
+        }
+
         ChessPiece piece = chessBoard.getPiece(move.getStartPosition());
         if (piece == null) {
             throw new InvalidMoveException("Invalid move: There is no piece at the starting position.");
@@ -221,5 +226,13 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return chessBoard;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 }

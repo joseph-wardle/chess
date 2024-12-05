@@ -5,6 +5,7 @@ import javax.websocket.server.ServerEndpoint;
 import java.util.*;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import models.AuthToken;
 import models.Game;
@@ -104,14 +105,131 @@ public class GameWebSocket {
     }
 
     private void handleResign(UserGameCommand command, Session session) {
-        // TODO
+        try {
+            AuthToken auth = authService.authenticate(command.getAuthToken());
+            int gameId = command.getGameID();
+
+            // Retrieve the current ChessGame state
+            ChessGame chessGame = getChessGameFromStorage(gameId);
+            if (chessGame == null) {
+                sendError(session, "Game state not found.");
+                return;
+            }
+
+            // Mark the game as over
+            chessGame.setGameOver(true); // You need to add a 'gameOver' field in ChessGame class
+
+            // Update game state in storage
+            saveChessGameToStorage(gameId, chessGame);
+
+            // Notify all clients
+            String notificationText = auth.getUsername() + " has resigned.";
+            NotificationMessage notification = new NotificationMessage(notificationText);
+            broadcastToGame(gameId, notification, null);
+        } catch (Exception e) {
+            sendError(session, "Error processing resign: " + e.getMessage());
+        }
     }
 
     private void handleLeave(UserGameCommand command, Session session) {
-        // TODO
+        try {
+            AuthToken auth = authService.authenticate(command.getAuthToken());
+            int gameId = command.getGameID();
+
+            // Remove session from gameSessions
+            Set<Session> sessions = gameSessions.get(gameId);
+            if (sessions != null) {
+                sessions.remove(session);
+            }
+            sessionGameMap.remove(session);
+            sessionUserMap.remove(session);
+
+            Game game = gameService.getGame(gameId);
+
+            // If the user is a player, remove them from the game
+            boolean isPlayer = false;
+            if (game.getWhiteUsername() != null && game.getWhiteUsername().equals(auth.getUsername())) {
+                game.setWhiteUsername(null);
+                isPlayer = true;
+            }
+            if (game.getBlackUsername() != null && game.getBlackUsername().equals(auth.getUsername())) {
+                game.setBlackUsername(null);
+                isPlayer = true;
+            }
+            if (isPlayer) {
+                gameService.updateGame(game);
+            }
+
+            // Notify others
+            String notificationText = auth.getUsername() + " left the game.";
+            NotificationMessage notification = new NotificationMessage(notificationText);
+            broadcastToGame(gameId, notification, session);
+        } catch (Exception e) {
+            sendError(session, "Error processing leave: " + e.getMessage());
+        }
     }
 
     private void handleMakeMove(UserGameCommand command, Session session) {
+        try {
+            AuthToken auth = authService.authenticate(command.getAuthToken());
+            int gameId = command.getGameID();
+            ChessMove move = command.getMove();
+
+            Game game = gameService.getGame(gameId);
+            if (game == null) {
+                sendError(session, "Game not found.");
+                return;
+            }
+
+            ChessGame chessGame = getChessGameFromStorage(gameId);
+            if (chessGame == null) {
+                sendError(session, "Game state not found.");
+                return;
+            }
+
+            String currentPlayer = chessGame.getTeamTurn() == ChessGame.TeamColor.WHITE ? game.getWhiteUsername() : game.getBlackUsername();
+            if (!auth.getUsername().equals(currentPlayer)) {
+                sendError(session, "It's not your turn.");
+                return;
+            }
+
+            chessGame.makeMove(move);
+
+            saveChessGameToStorage(gameId, chessGame);
+
+            LoadGameMessage loadGameMessage = new LoadGameMessage(chessGame);
+            broadcastToGame(gameId, loadGameMessage, null);
+
+            String moveDescription = auth.getUsername() + " moved from " + move.getStartPosition() + " to " + move.getEndPosition();
+            NotificationMessage notification = new NotificationMessage(moveDescription);
+            broadcastToGame(gameId, notification, session);
+
+            if (chessGame.isInCheck(chessGame.getTeamTurn())) {
+                NotificationMessage checkNotification = new NotificationMessage(currentPlayer + " is in check.");
+                broadcastToGame(gameId, checkNotification, null);
+            }
+            if (chessGame.isInCheckmate(chessGame.getTeamTurn())) {
+                NotificationMessage checkmateNotification = new NotificationMessage(currentPlayer + " is in checkmate.");
+                broadcastToGame(gameId, checkmateNotification, null);
+            }
+            if (chessGame.isInStalemate(chessGame.getTeamTurn())) {
+                NotificationMessage stalemateNotification = new NotificationMessage("Game is in stalemate.");
+                broadcastToGame(gameId, stalemateNotification, null);
+            }
+        } catch (Exception e) {
+            sendError(session, "Error processing move: " + e.getMessage());
+
+        }
+    }
+
+
+    // Helper methods to get and save ChessGame state
+    private ChessGame getChessGameFromStorage(int gameId) {
+        // TODO
+        return null;
+    }
+
+    private void saveChessGameToStorage(int gameId, ChessGame chessGame) {
         // TODO
     }
 
@@ -127,10 +245,11 @@ public class GameWebSocket {
     private void broadcastToGame(int gameId, ServerMessage message, Session excludeSession) {
         Set<Session> sessions = gameSessions.get(gameId);
         if (sessions != null) {
+            String jsonMessage = gson.toJson(message);
             for (Session s : sessions) {
-                if (!s.equals(excludeSession)) {
+                if (excludeSession == null || !s.equals(excludeSession)) {
                     try {
-                        s.getBasicRemote().sendText(gson.toJson(message));
+                        s.getBasicRemote().sendText(jsonMessage);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
