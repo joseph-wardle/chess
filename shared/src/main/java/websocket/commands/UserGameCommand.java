@@ -1,5 +1,7 @@
 package websocket.commands;
 
+import chess.ChessMove;
+
 import java.util.Objects;
 
 /**
@@ -9,12 +11,17 @@ import java.util.Objects;
  * methods.
  */
 public class UserGameCommand {
+    public enum CommandType {
+        CONNECT,
+        MAKE_MOVE,
+        LEAVE,
+        RESIGN
+    }
 
     private final CommandType commandType;
-
     private final String authToken;
-
     private final Integer gameID;
+    private final ChessMove move;
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
         this.commandType = commandType;
@@ -22,11 +29,11 @@ public class UserGameCommand {
         this.gameID = gameID;
     }
 
-    public enum CommandType {
-        CONNECT,
-        MAKE_MOVE,
-        LEAVE,
-        RESIGN
+    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, ChessMove move) {
+        this.commandType = commandType;
+        this.authToken = authToken;
+        this.gameID = gameID;
+        this.move = move;
     }
 
     public CommandType getCommandType() {
