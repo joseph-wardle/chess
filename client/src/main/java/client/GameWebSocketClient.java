@@ -1,6 +1,7 @@
 package client;
 
 import javax.websocket.*;
+import java.io.IOException;
 import java.net.URI;
 import com.google.gson.Gson;
 import websocket.messages.ServerMessage;
@@ -59,6 +60,16 @@ public class GameWebSocketClient {
     @OnError
     public void onError(Throwable t) {
         System.err.println("WebSocket error: " + t.getMessage());
+    }
+
+    public void close() {
+        if (session != null && session.isOpen()) {
+            try {
+                session.close();
+            } catch (IOException e) {
+                System.err.println("Failed to close WebSocket session: " + e.getMessage());
+            }
+        }
     }
 
     public void sendCommand(websocket.commands.UserGameCommand command) {
