@@ -3,6 +3,8 @@ package websocket;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.util.*;
+
+import chess.ChessGame;
 import com.google.gson.Gson;
 import models.AuthToken;
 import models.Game;
@@ -73,5 +75,29 @@ public class GameWebSocket {
         System.err.println("WebSocket error on session " + session.getId() + ": " + throwable.getMessage());
     }
 
-    // TODO: Handler methods
+    private void handleConnect(UserGameCommand command, Session session) {
+        try {
+            AuthToken auth = authService.authenticate(command.getAuthToken());
+            int gameId = command.getGameID();
+
+            // Add session to gameSessions
+            gameSessions.computeIfAbsent(gameId, k -> Collections.synchronizedSet(new HashSet<>())).add(session);
+            sessionGameMap.put(session, gameId);
+            sessionUserMap.put(session, auth.getUsername());
+
+            // Send LOAD_GAME message to root client
+            Game game = gameService.getGame(gameId);
+            ChessGame chessGame = new ChessGame(); // Load actual game state
+            LoadGameMessage loadGameMessage = new LoadGameMessage(chessGame);
+            session.getBasicRemote().sendText(gson.toJson(loadGameMessage));
+
+            // Notify others
+            String notificationText = auth.getUsername() + " connected to the game as " +
+                    (game.getWhiteUsername().equals(auth.getUsername()) ? "white" : "black");
+            NotificationMessage notification = new NotificationMessage(notificationText);
+            broadcastToGame(gameId, notification, session);
+        } catch (Exception e) {
+            sendError(session, e.getMessage());
+        }
+    }
 }
