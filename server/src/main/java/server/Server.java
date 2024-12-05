@@ -11,10 +11,12 @@ import services.AuthService;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessImpl;
 import com.google.gson.Gson;
+import spark.Session;
 import spark.Spark;
 import websocket.GameWebSocket;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Main server class that initializes and runs the Spark server.
@@ -28,6 +30,7 @@ public class Server {
     private final GameHandler gameHandler;
     private final ErrorHandler errorHandler;
     private final Gson gson = new Gson();
+    public static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
 
     public Server() {
         try {
@@ -72,7 +75,7 @@ public class Server {
             }
         });
 
-        Spark.webSocket("/ws", GameWebSocket.class);
+        Spark.webSocket("/connect", GameWebSocket.class);
 
         Spark.init();
         Spark.awaitInitialization();

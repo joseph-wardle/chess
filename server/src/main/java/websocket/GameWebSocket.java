@@ -8,6 +8,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import models.AuthToken;
 import models.Game;
+import server.Server;
 import services.AuthService;
 import services.GameService;
 import dataaccess.DataAccessException;
@@ -37,7 +38,7 @@ public class GameWebSocket {
 
     @OnOpen
     public void onOpen(Session session) {
-        // No action needed on open
+        Server.gameSessions.put(session, 0);
     }
 
     @OnMessage
