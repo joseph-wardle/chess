@@ -67,7 +67,8 @@ public class GameWebSocket {
 
     @OnClose
     public void onClose(Session session) {
-        handleLeave(session);
+        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, null, sessionGameMap.get(session));
+        handleLeave(command, session);
     }
 
     @OnError
@@ -99,6 +100,18 @@ public class GameWebSocket {
         } catch (Exception e) {
             sendError(session, e.getMessage());
         }
+    }
+
+    private void handleResign(UserGameCommand command, Session session) {
+        // TODO
+    }
+
+    private void handleLeave(UserGameCommand command, Session session) {
+        // TODO
+    }
+
+    private void handleMakeMove(UserGameCommand command, Session session) {
+        // TODO
     }
 
     private void sendError(Session session, String errorMessage) {
