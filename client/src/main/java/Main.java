@@ -1,8 +1,13 @@
 import chess.*;
+import client.GameWebSocketClient;
 import client.ServerFacade;
 import models.AuthToken;
 import models.Game;
 import ui.EscapeSequences;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +19,8 @@ public class Main {
     private static Scanner scanner;
     private static AuthToken authToken;
     private static Map<Integer, Game> gameMap = new HashMap<>();
+    private static GameWebSocketClient webSocketClient;
+    private static ChessGame chessGame;
 
     public static void main(String[] args) {
         // Initialize server facade
@@ -192,6 +199,21 @@ public class Main {
         Game game = gameMap.get(gameNumber);
         serverFacade.joinGame(authToken.getToken(), game.getGameID(), color.toLowerCase());
         System.out.println("Joined game: " + game.getGameName() + " as " + color.toUpperCase());
+
+        // Connect to WebSocket
+        webSocketClient = new GameWebSocketClient(new Main());
+        webSocketClient.connect("ws://localhost:8080/ws");
+
+        // Send CONNECT command
+        UserGameCommand connectCommand = new UserGameCommand(
+                UserGameCommand.CommandType.CONNECT,
+                authToken.getToken(),
+                game.getGameID()
+        );
+        webSocketClient.sendCommand(connectCommand);
+
+        // Transition to gameplay UI
+        gameplayUI();
     }
 
     private static void observeGame(String gameNumberStr) throws Exception {
@@ -273,5 +295,62 @@ public class Main {
             default:
                 return EscapeSequences.EMPTY;
         }
+    }
+
+    private static void gameplayUI() {
+        State state = State.IN_GAME;
+        while (state == State.IN_GAME) {
+            System.out.print("[" + state + "] >>> ");
+            String inputLine = scanner.nextLine().trim();
+            if (inputLine.isEmpty()) {
+                continue;
+            }
+
+            String[] tokens = inputLine.split("\\s+");
+            String command = tokens[0].toLowerCase();
+
+            try {
+                switch (command) {
+                    case "help":
+                        printGameplayHelp();
+                        break;
+                    case "redraw":
+                        drawChessBoard(currentPerspective);
+                        break;
+                    case "leave":
+                        // Send LEAVE command
+                        // Transition back to post-login UI
+                        state = State.LOGGED_IN;
+                        break;
+                    case "move":
+                        // Handle move command
+                        break;
+                    case "resign":
+                        // Send RESIGN command
+                        break;
+                    case "highlight":
+                        // Handle highlight command
+                        break;
+                    default:
+                        System.out.println("Unknown command. Type 'help' for a list of commands.");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    public void handleLoadGame(LoadGameMessage message) {
+        chessGame = message.getGame();
+        ChessGame.TeamColor currentPerspective = ChessGame.TeamColor.BLACK; // TODO: Make this work
+        drawChessBoard(currentPerspective);
+    }
+
+    public void handleNotification(NotificationMessage message) {
+        System.out.println("Notification: " + message.getMessage());
+    }
+
+    public void handleError(ErrorMessage message) {
+        System.err.println("Error: " + message.getErrorMessage());
     }
 }
