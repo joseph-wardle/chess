@@ -10,7 +10,6 @@ import services.GameService;
 import services.AuthService;
 import dataaccess.DataAccess;
 import com.google.gson.Gson;
-import services.WebSocketService;
 import spark.Session;
 import spark.Spark;
 
@@ -25,7 +24,6 @@ public class Server {
     private final UserService userService;
     private final GameService gameService;
     private final AuthService authService;
-    private final WebSocketService webSocketService;
     private final UserHandler userHandler;
     private final GameHandler gameHandler;
     private final ErrorHandler errorHandler;
@@ -74,9 +72,6 @@ public class Server {
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
             }
         });
-
-
-        Spark.webSocket("/connect", WebSocketService.class);
 
         Spark.init();
         Spark.awaitInitialization();
