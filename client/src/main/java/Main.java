@@ -1,6 +1,4 @@
 import chess.*;
-import client.GameMessageHandler;
-import client.GameWebSocketClient;
 import client.ServerFacade;
 import models.AuthToken;
 import models.Game;
