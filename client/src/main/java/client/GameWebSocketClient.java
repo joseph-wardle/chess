@@ -1,6 +1,7 @@
 package client;
 
 import javax.websocket.*;
+import java.io.IOException;
 import java.net.URI;
 import com.google.gson.Gson;
 import websocket.messages.ServerMessage;
@@ -8,7 +9,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ErrorMessage;
 
-@WebSocket
+@ClientEndpoint
 public class GameWebSocketClient {
     private Session session;
     private Gson gson = new Gson();
