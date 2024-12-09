@@ -3,10 +3,11 @@ import client.ServerFacade;
 import models.AuthToken;
 import models.Game;
 import ui.EscapeSequences;
-import websocket.commands.UserGameCommand;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
+import websocket.GameMessageHandler;
+import websocket.WebSocketFacade;
+import websocket.commands.*;
+import websocket.messages.*;
+
 
 import java.util.*;
 
@@ -15,10 +16,10 @@ public class Main implements GameMessageHandler {
     private Scanner scanner;
     private AuthToken authToken;
     private Map<Integer, Game> gameMap = new HashMap<>();
-    private GameWebSocketClient webSocketClient;
     private ChessGame chessGame;
     private ChessGame.TeamColor currentPerspective;
     private int currentGameID;
+    private WebSocketFacade webSocketFacade;
 
     public static void main(String[] args) {
         Main mainApp = new Main();
@@ -217,15 +218,8 @@ public class Main implements GameMessageHandler {
         currentPerspective = color.equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
         currentGameID = game.getGameID();
 
-        connectToWebSocket();
-
-        // Send CONNECT command
-        UserGameCommand connectCommand = new UserGameCommand(
-                UserGameCommand.CommandType.CONNECT,
-                authToken.getToken(),
-                currentGameID
-        );
-        webSocketClient.sendCommand(connectCommand);
+        webSocketFacade = new WebSocketFacade(this);
+        webSocketFacade.connect(authToken.getToken(), currentGameID);
     }
 
     private void observeGame(String gameNumberStr) throws Exception {
@@ -236,15 +230,8 @@ public class Main implements GameMessageHandler {
         currentPerspective = ChessGame.TeamColor.WHITE; // Default perspective
         currentGameID = game.getGameID();
 
-        connectToWebSocket();
-
-        // Send CONNECT command
-        UserGameCommand connectCommand = new UserGameCommand(
-                UserGameCommand.CommandType.CONNECT,
-                authToken.getToken(),
-                currentGameID
-        );
-        webSocketClient.sendCommand(connectCommand);
+        webSocketFacade = new WebSocketFacade(this);
+        webSocketFacade.connect(authToken.getToken(), currentGameID);
     }
 
     private void makeMove(String startPosStr, String endPosStr) {
@@ -253,13 +240,7 @@ public class Main implements GameMessageHandler {
             ChessPosition end = parsePosition(endPosStr);
             ChessMove move = new ChessMove(start, end);
 
-            UserGameCommand moveCommand = new UserGameCommand(
-                    UserGameCommand.CommandType.MAKE_MOVE,
-                    authToken.getToken(),
-                    currentGameID,
-                    move
-            );
-            webSocketClient.sendCommand(moveCommand);
+            webSocketFacade.makeMove(authToken.getToken(), currentGameID, move);
         } catch (Exception e) {
             System.out.println("Error making move: " + e.getMessage());
         }
@@ -293,8 +274,9 @@ public class Main implements GameMessageHandler {
                 authToken.getToken(),
                 currentGameID
         );
-        webSocketClient.sendCommand(leaveCommand);
-        webSocketClient.close();
+        webSocketFacade.leave(authToken.getToken(), currentGameID);
+        webSocketFacade.session.close();
+
         chessGame = null;
         currentGameID = -1;
         currentPerspective = null;
@@ -307,17 +289,13 @@ public class Main implements GameMessageHandler {
                 authToken.getToken(),
                 currentGameID
         );
-        webSocketClient.sendCommand(resignCommand);
-        webSocketClient.close();
+        webSocketFacade.resign(authToken.getToken(), currentGameID);
+        webSocketFacade.session.close();
+
         chessGame = null;
         currentGameID = -1;
         currentPerspective = null;
         System.out.println("You have resigned from the game.");
-    }
-
-    private void connectToWebSocket() {
-        webSocketClient = new GameWebSocketClient(this);
-        webSocketClient.connect("ws://localhost:8080/ws");
     }
 
     private int parseGameNumber(String gameNumberStr) throws Exception {
@@ -458,19 +436,18 @@ public class Main implements GameMessageHandler {
     }
 
     @Override
-    public void handleLoadGame(LoadGameMessage message) {
+    public void loadGame(LoadGameMessage message) {
         chessGame = message.getGame();
         drawChessBoard(currentPerspective);
     }
 
     @Override
-    public void handleNotification(NotificationMessage message) {
+    public void notify(NotificationMessage message) {
         System.out.println("Notification: " + message.getMessage());
     }
 
     @Override
-    public void handleError(ErrorMessage message) {
+    public void error(ErrorMessage message) {
         System.err.println("Error: " + message.getErrorMessage());
     }
-
 }
