@@ -25,11 +25,11 @@ public class Server {
     private final UserService userService;
     private final GameService gameService;
     private final AuthService authService;
+    private final WebSocketService webSocketService;
     private final UserHandler userHandler;
     private final GameHandler gameHandler;
     private final ErrorHandler errorHandler;
     private final Gson gson = new Gson();
-
     public static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
 
     public Server() {
