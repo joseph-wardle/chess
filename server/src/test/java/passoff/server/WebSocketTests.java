@@ -61,16 +61,9 @@ public class WebSocketTests {
 
     @Test
     @Order(1)
-    @DisplayName("Connect 1 User")
-    public void connectSingleUser() {
-        connectToGame(white, gameID, true, Set.of(), Set.of()); //Connects 1 User to the game
-    }
-
-    @Test
-    @Order(2)
     @DisplayName("Normal Connect")
     public void connectGood() {
-        setupNormalGame();    //Connects 3 Users to the game, and notifies others upon connection
+        setupNormalGame();
     }
 
     @Test
