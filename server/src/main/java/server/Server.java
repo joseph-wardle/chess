@@ -9,11 +9,9 @@ import services.UserService;
 import services.GameService;
 import services.AuthService;
 import dataaccess.DataAccess;
-import dataaccess.DataAccessImpl;
 import com.google.gson.Gson;
 import spark.Session;
 import spark.Spark;
-import websocket.GameWebSocket;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,8 +72,6 @@ public class Server {
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
             }
         });
-
-        Spark.webSocket("/ws", GameWebSocket.class);
 
         Spark.init();
         Spark.awaitInitialization();
