@@ -21,20 +21,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * Main server class that initializes and runs the Spark server.
  */
 public class Server {
-    private final DataAccess dataAccess;
     private final UserService userService;
-    private final GameService gameService;
-    private final AuthService authService;
+    public final GameService gameService;
+    public final AuthService authService;
     private final UserHandler userHandler;
     private final GameHandler gameHandler;
     private final ErrorHandler errorHandler;
     private final Gson gson = new Gson();
 
-    public static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
-
     public Server() {
+        DataAccess dataAccess;
         try {
-            this.dataAccess = new DataAccessMySQLImpl();
+            dataAccess = new DataAccessMySQLImpl();
         } catch (DataAccessException e) {
             throw new RuntimeException("Failed to initialize DataAccess layer: " + e.getMessage(), e);
         }
