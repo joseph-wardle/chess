@@ -41,7 +41,7 @@ public class UIController implements GameMessageHandler {
 
         while (true) {
             System.out.print("[" + currentState + "] >>> ");
-            String inputLine = Scanner.nextLine().trim();
+            String inputLine = scanner.nextLine().trim();
             if (inputLine.isEmpty()) {
                 continue;
             }
@@ -63,9 +63,9 @@ public class UIController implements GameMessageHandler {
 
     // ----- State Handling -----
 
-    private void HandleLoggedOutCommand(String command, String[] tokens) throws Exception {
+    private void handleLoggedOutCommand(String command, String[] tokens) throws Exception {
         switch (command) {
-            case "help" -> helpPrinter.printPreLoginHelp();
+            case "help" -> HelpPrinter.printPreLoginHelp();
             case "register" -> {
                 if (tokens.length == 4) {
                     commandHandler.register(tokens[1], tokens[2], tokens[3]);

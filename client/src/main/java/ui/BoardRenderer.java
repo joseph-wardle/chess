@@ -3,7 +3,6 @@ package ui;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
-import ui.EscapeSequences;
 
 public class BoardRenderer {
     public static void drawChessBoard(ChessGame chessGame, ChessGame.TeamColor perspective) {
