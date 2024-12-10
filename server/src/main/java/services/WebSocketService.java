@@ -43,7 +43,7 @@ public class WebSocketService {
             Role role = sessionRoles.remove(user);
 
             if (username != null) {
-                broadcastNotification(gameID, username + " left the game", user);
+                broadcastNotification(gameID, username + " left the game", null);
             }
         }
     }
@@ -86,7 +86,7 @@ public class WebSocketService {
 
         // Mark game as over
         chessGame.setGameOver(true);
-        broadcastNotification(gameID, username + " resigned the game", userSession);
+        broadcastNotification(gameID, username + " resigned the game", null);
 
         // User stays connected as per the specs (?). Actually, it says "Does not cause the user to leave the game."
         // The user can still be in the session, just the game is over. They can still leave after if they want.
@@ -113,16 +113,9 @@ public class WebSocketService {
         sessionToGame.remove(userSession);
         Role role = sessionRoles.remove(userSession);
 
-        if (role == Role.WHITE) {
-            game.setWhiteUsername(null);
-            gameService.getGame(gameID);
-        } else if (role == Role.BLACK) {
-            game.setBlackUsername(null);
-        }
+        gameService.removePlayerFromGame(gameID, username);
 
-        broadcastNotification(gameID, username + " left the game", userSession);
-
-        // Optionally close session if you want, but not required
+        broadcastNotification(gameID, username + " left the game", null);
         userSession.close();
     }
 
@@ -177,7 +170,7 @@ public class WebSocketService {
         broadcastToAll(gameID, new LoadGameMessage(chessGame));
 
         // Notify others about the move
-        broadcastNotification(gameID, username + " made a move: " + formatMove(move), userSession);
+        broadcastNotification(gameID, username + " made a move: " + formatMove(move), null);
 
         // Check for check, checkmate, stalemate
         ChessGame.TeamColor opponentColor = (turnColor == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;

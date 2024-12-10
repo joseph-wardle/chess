@@ -97,4 +97,22 @@ public class GameService {
         }
         return game;
     }
+
+    public void removePlayerFromGame(int gameId, String username) throws DataAccessException {
+        Game game = getGame(gameId);
+        boolean changed = false;
+
+        if (game.getWhiteUsername() != null && game.getWhiteUsername().equals(username)) {
+            game.setWhiteUsername(null);
+            changed = true;
+        }
+        if (game.getBlackUsername() != null && game.getBlackUsername().equals(username)) {
+            game.setBlackUsername(null);
+            changed = true;
+        }
+
+        if (changed) {
+            dataAccess.updateGame(game);
+        }
+    }
 }
