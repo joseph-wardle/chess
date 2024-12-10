@@ -84,6 +84,17 @@ public class WebSocketService {
             return;
         }
 
+        Role role = sessionRoles.get(userSession);
+        if (role == Role.OBSERVER) {
+            sendError(userSession, "Error: Observers cannot resign");
+            return;
+        }
+
+        if (chessGame.isGameOver()) {
+            sendError(userSession, "Error: The game is already over");
+            return;
+        }
+
         // Mark game as over
         chessGame.setGameOver(true);
         broadcastNotification(gameID, username + " resigned the game", null);
@@ -103,6 +114,12 @@ public class WebSocketService {
         ChessGame chessGame = chessGames.get(gameID);
         if (chessGame == null) {
             sendError(userSession, "Error: Game not found");
+            return;
+        }
+
+        Integer userGameID = sessionToGame.get(userSession);
+        if (userGameID == null || userGameID != gameID) {
+            sendError(userSession, "Error: You are not currently in this game");
             return;
         }
 
@@ -163,14 +180,13 @@ public class WebSocketService {
             return;
         }
 
-        // Move successful, update database game if needed
-        // (For testing, may not need to persist moves to DB)
+        if (chessGame.isGameOver()) {
+            sendError(userSession, "Error: The game is over");
+            return;
+        }
 
-        // Send LOAD_GAME to all
         broadcastToAll(gameID, new LoadGameMessage(chessGame));
-
-        // Notify others about the move
-        broadcastNotification(gameID, username + " made a move: " + formatMove(move), null);
+        broadcastNotification(gameID, username + " made a move: " + formatMove(move), userSession);
 
         // Check for check, checkmate, stalemate
         ChessGame.TeamColor opponentColor = (turnColor == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
