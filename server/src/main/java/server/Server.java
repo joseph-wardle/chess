@@ -50,6 +50,9 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
+        Spark.webSocket("/ws", WebSocketService.class);
+        WebSocketService.initialize(authService, gameService);
+
         Spark.exception(Exception.class, errorHandler::handleException);
 
         Spark.notFound(errorHandler::handleNotFound);
@@ -73,8 +76,6 @@ public class Server {
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage(), "success", false));
             }
         });
-
-
 
         Spark.init();
         Spark.awaitInitialization();
