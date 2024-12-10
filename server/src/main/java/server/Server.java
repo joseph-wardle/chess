@@ -74,7 +74,7 @@ public class Server {
             }
         });
 
-        Spark.webSocket("/connect", WebSocketService.class);
+        Spark.webSocket("/ws", WebSocketService.class);
 
         Spark.init();
         Spark.awaitInitialization();
