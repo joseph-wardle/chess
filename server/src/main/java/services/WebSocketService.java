@@ -86,7 +86,7 @@ public class WebSocketService {
 
         // Mark game as over
         chessGame.setGameOver(true);
-        broadcastNotification(gameID, username + " resigned the game", null);
+        broadcastNotification(gameID, username + " resigned the game", userSession);
 
         // User stays connected as per the specs (?). Actually, it says "Does not cause the user to leave the game."
         // The user can still be in the session, just the game is over. They can still leave after if they want.
@@ -106,7 +106,6 @@ public class WebSocketService {
             return;
         }
 
-        // Remove session from game
         Map<Session, String> sessions = gameSessions.get(gameID);
         if (sessions != null) {
             sessions.remove(userSession);
@@ -114,14 +113,11 @@ public class WebSocketService {
         sessionToGame.remove(userSession);
         Role role = sessionRoles.remove(userSession);
 
-        // If player leaves, remove them from the game in DB
         if (role == Role.WHITE) {
             game.setWhiteUsername(null);
-            gameService.getGame(gameID); // ensure game still valid
-            // update DB if needed
+            gameService.getGame(gameID);
         } else if (role == Role.BLACK) {
             game.setBlackUsername(null);
-            // update DB if needed
         }
 
         broadcastNotification(gameID, username + " left the game", userSession);
@@ -181,7 +177,7 @@ public class WebSocketService {
         broadcastToAll(gameID, new LoadGameMessage(chessGame));
 
         // Notify others about the move
-        broadcastNotification(gameID, username + " made a move: " + formatMove(move), null);
+        broadcastNotification(gameID, username + " made a move: " + formatMove(move), userSession);
 
         // Check for check, checkmate, stalemate
         ChessGame.TeamColor opponentColor = (turnColor == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
