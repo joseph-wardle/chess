@@ -10,6 +10,7 @@ import services.GameService;
 import services.AuthService;
 import dataaccess.DataAccess;
 import com.google.gson.Gson;
+import services.WebSocketService;
 import spark.Session;
 import spark.Spark;
 
@@ -73,8 +74,12 @@ public class Server {
             }
         });
 
+        Spark.webSocket("/connect", WebSocketService.class);
+
         Spark.init();
         Spark.awaitInitialization();
+
+        WebSocketService.initialize(authService, gameService);
         return Spark.port();
     }
 
