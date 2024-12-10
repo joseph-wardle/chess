@@ -19,12 +19,12 @@ public class WebSocketService {
     private static AuthService authService;
     private static GameService gameService;
 
-    private static final Map<Integer, ChessGame> chessGames = new ConcurrentHashMap<>();
-    private static final Map<Integer, Map<Session, String>> gameSessions = new ConcurrentHashMap<>();
-    private static final Map<Session, Integer> sessionToGame = new ConcurrentHashMap<>();
+    private static final Map<Integer, ChessGame> CHESS_GAMES = new ConcurrentHashMap<>();
+    private static final Map<Integer, Map<Session, String>> GAME_SESSIONS = new ConcurrentHashMap<>();
+    private static final Map<Session, Integer> SESSION_TO_GAME = new ConcurrentHashMap<>();
 
     private enum Role { WHITE, BLACK, OBSERVER }
-    private static final Map<Session, Role> sessionRoles = new ConcurrentHashMap<>();
+    private static final Map<Session, Role> SESSION_ROLES = new ConcurrentHashMap<>();
 
     public static void initialize(AuthService auth, GameService game) {
         authService = auth;
@@ -37,10 +37,10 @@ public class WebSocketService {
 
     @OnWebSocketClose
     public void onClose(Session user, int statusCode, String reason) {
-        Integer gameID = sessionToGame.remove(user);
+        Integer gameID = SESSION_TO_GAME.remove(user);
         if (gameID != null) {
-            String username = gameSessions.getOrDefault(gameID, Collections.emptyMap()).remove(user);
-            Role role = sessionRoles.remove(user);
+            String username = GAME_SESSIONS.getOrDefault(gameID, Collections.emptyMap()).remove(user);
+            Role role = SESSION_ROLES.remove(user);
 
             if (username != null) {
                 broadcastNotification(gameID, username + " left the game", null);
@@ -78,13 +78,13 @@ public class WebSocketService {
         String username = auth.getUsername();
 
         Game game = gameService.getGame(gameID);
-        ChessGame chessGame = chessGames.get(gameID);
+        ChessGame chessGame = CHESS_GAMES.get(gameID);
         if (chessGame == null) {
             sendError(userSession, "Error: Game not found");
             return;
         }
 
-        Role role = sessionRoles.get(userSession);
+        Role role = SESSION_ROLES.get(userSession);
         if (role == Role.OBSERVER) {
             sendError(userSession, "Error: Observers cannot resign");
             return;
@@ -111,24 +111,24 @@ public class WebSocketService {
         String username = auth.getUsername();
 
         Game game = gameService.getGame(gameID);
-        ChessGame chessGame = chessGames.get(gameID);
+        ChessGame chessGame = CHESS_GAMES.get(gameID);
         if (chessGame == null) {
             sendError(userSession, "Error: Game not found");
             return;
         }
 
-        Integer userGameID = sessionToGame.get(userSession);
+        Integer userGameID = SESSION_TO_GAME.get(userSession);
         if (userGameID == null || userGameID != gameID) {
             sendError(userSession, "Error: You are not currently in this game");
             return;
         }
 
-        Map<Session, String> sessions = gameSessions.get(gameID);
+        Map<Session, String> sessions = GAME_SESSIONS.get(gameID);
         if (sessions != null) {
             sessions.remove(userSession);
         }
-        sessionToGame.remove(userSession);
-        Role role = sessionRoles.remove(userSession);
+        SESSION_TO_GAME.remove(userSession);
+        Role role = SESSION_ROLES.remove(userSession);
 
         gameService.removePlayerFromGame(gameID, username);
 
@@ -145,14 +145,14 @@ public class WebSocketService {
         String username = auth.getUsername();
 
         Game game = gameService.getGame(gameID);
-        ChessGame chessGame = chessGames.get(gameID);
+        ChessGame chessGame = CHESS_GAMES.get(gameID);
         if (chessGame == null) {
             sendError(userSession, "Error: Game not found");
             return;
         }
 
         // Check if user is a player in that game and if it's their turn
-        Role role = sessionRoles.get(userSession);
+        Role role = SESSION_ROLES.get(userSession);
         if (role == null || role == Role.OBSERVER) {
             sendError(userSession, "Error: Observers cannot make moves");
             return;
@@ -234,17 +234,17 @@ public class WebSocketService {
         }
 
         // Load or create ChessGame in memory
-        ChessGame chessGame = chessGames.get(gameID);
+        ChessGame chessGame = CHESS_GAMES.get(gameID);
         if (chessGame == null) {
             // Create a new chess game if not exists
             chessGame = new ChessGame();
-            chessGames.put(gameID, chessGame);
+            CHESS_GAMES.put(gameID, chessGame);
         }
 
         // Add session to maps
-        gameSessions.computeIfAbsent(gameID, k -> new ConcurrentHashMap<>()).put(userSession, username);
-        sessionToGame.put(userSession, gameID);
-        sessionRoles.put(userSession, role);
+        GAME_SESSIONS.computeIfAbsent(gameID, k -> new ConcurrentHashMap<>()).put(userSession, username);
+        SESSION_TO_GAME.put(userSession, gameID);
+        SESSION_ROLES.put(userSession, role);
 
         // Send LOAD_GAME to this user
         sendMessage(userSession, new LoadGameMessage(chessGame));
@@ -272,16 +272,20 @@ public class WebSocketService {
     }
 
     private void broadcastToAll(int gameID, ServerMessage message) {
-        Map<Session, String> sessions = gameSessions.get(gameID);
-        if (sessions == null) return;
+        Map<Session, String> sessions = GAME_SESSIONS.get(gameID);
+        if (sessions == null) {
+            return;
+        }
         for (Session s : sessions.keySet()) {
             sendMessage(s, message);
         }
     }
 
     private void broadcastNotification(int gameID, String notifMessage, Session exclude) {
-        Map<Session, String> sessions = gameSessions.get(gameID);
-        if (sessions == null) return;
+        Map<Session, String> sessions = GAME_SESSIONS.get(gameID);
+        if (sessions == null) {
+            return;
+        }
         NotificationMessage notification = new NotificationMessage(notifMessage);
         for (Session s : sessions.keySet()) {
             if (s != exclude && s.isOpen()) {
